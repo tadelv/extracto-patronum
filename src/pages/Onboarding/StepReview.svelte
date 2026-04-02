@@ -3,16 +3,16 @@
   import { updateWorkflow } from '../../lib/stores/workflow.js'
   import GradientButton from '../../lib/components/GradientButton.svelte'
 
-  let { state = {}, oncomplete = () => {}, onprev = () => {} } = $props()
+  let { data = {}, oncomplete = () => {}, onprev = () => {} } = $props()
 
   let baking = $state(false)
   let error = $state('')
 
-  let coffee = $derived(state.roast?.bean ?? {})
-  let roastLevel = $derived(state.roast?.level ?? 'unknown')
-  let profile = $derived(state.profile ?? {})
-  let dose = $derived(state.targets?.dose ?? 0)
-  let yieldTarget = $derived(state.targets?.yield ?? 0)
+  let coffee = $derived(data.roast?.bean ?? {})
+  let roastLevel = $derived(data.roast?.level ?? 'unknown')
+  let profile = $derived(data.profile ?? {})
+  let dose = $derived(data.targets?.dose ?? 0)
+  let yieldTarget = $derived(data.targets?.yield ?? 0)
 
   async function handleBake() {
     baking = true

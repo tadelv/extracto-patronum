@@ -2,8 +2,8 @@
   let { value = 0, max = 12, label = '', unit = '', size = 200, color = 'var(--color-primary)' } = $props()
 
   const strokeWidth = 6
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
+  let radius = $derived((size - strokeWidth) / 2)
+  let circumference = $derived(2 * Math.PI * radius)
   let dashOffset = $derived(circumference - (Math.min(value / max, 1) * circumference))
 </script>
 

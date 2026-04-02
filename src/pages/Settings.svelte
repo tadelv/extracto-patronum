@@ -193,6 +193,7 @@
           </p>
         </div>
         <button
+          aria-label="Toggle interface mode"
           class="relative w-14 h-8 rounded-full transition-colors tactile-sink"
           class:bg-primary={interfaceMode === 'tinkerer'}
           class:bg-surface-container-highest={interfaceMode !== 'tinkerer'}
@@ -242,9 +243,10 @@
       <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Device Preferences</span>
       <div class="grid grid-cols-2 gap-4 mt-4">
         <div>
-          <label class="font-label text-xs text-on-surface-variant block mb-2">Preferred Machine</label>
+          <label for="preferred-machine" class="font-label text-xs text-on-surface-variant block mb-2">Preferred Machine</label>
           {#if devList.machines.length > 0}
             <select
+              id="preferred-machine"
               value={preferredMachine}
               onchange={handlePreferredMachine}
               class="w-full bg-surface-container-highest text-on-surface font-label text-sm px-4 py-3 rounded-lg border-0 outline-none focus:ring-2 focus:ring-primary"
@@ -259,9 +261,10 @@
           {/if}
         </div>
         <div>
-          <label class="font-label text-xs text-on-surface-variant block mb-2">Preferred Scale</label>
+          <label for="preferred-scale" class="font-label text-xs text-on-surface-variant block mb-2">Preferred Scale</label>
           {#if devList.scales.length > 0}
             <select
+              id="preferred-scale"
               value={preferredScale}
               onchange={handlePreferredScale}
               class="w-full bg-surface-container-highest text-on-surface font-label text-sm px-4 py-3 rounded-lg border-0 outline-none focus:ring-2 focus:ring-primary"
@@ -308,16 +311,18 @@
       <!-- Add schedule -->
       <div class="flex items-end gap-3 mt-4">
         <div>
-          <label class="font-label text-xs text-on-surface-variant block mb-1">Time</label>
+          <label for="schedule-time" class="font-label text-xs text-on-surface-variant block mb-1">Time</label>
           <input
+            id="schedule-time"
             type="time"
             bind:value={newScheduleTime}
             class="bg-surface-container-highest text-on-surface font-label text-sm px-4 py-3 rounded-lg border-0 outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
         <div>
-          <label class="font-label text-xs text-on-surface-variant block mb-1">Days</label>
+          <label for="schedule-days" class="font-label text-xs text-on-surface-variant block mb-1">Days</label>
           <select
+            id="schedule-days"
             bind:value={newScheduleDays}
             class="bg-surface-container-highest text-on-surface font-label text-sm px-4 py-3 rounded-lg border-0 outline-none focus:ring-2 focus:ring-primary"
           >

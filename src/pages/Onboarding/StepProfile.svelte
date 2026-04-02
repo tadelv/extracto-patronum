@@ -3,12 +3,14 @@
   import { api } from '../../lib/api/index.js'
   import GradientButton from '../../lib/components/GradientButton.svelte'
 
-  let { state = {}, onnext = () => {}, onprev = () => {} } = $props()
+  let { data = {}, onnext = () => {}, onprev = () => {} } = $props()
+
+  const initProfileId = data.profile?.id ?? null
 
   let profiles = $state([])
   let loading = $state(true)
   let error = $state('')
-  let selectedId = $state(state.profile?.id ?? null)
+  let selectedId = $state(initProfileId)
 
   let selectedProfile = $derived(profiles.find(p => p.id === selectedId) ?? null)
   let canContinue = $derived(selectedProfile !== null)

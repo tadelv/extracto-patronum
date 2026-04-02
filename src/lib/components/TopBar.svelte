@@ -72,6 +72,7 @@
     <a
       href="/settings"
       use:link
+      aria-label="Settings"
       class="ml-2 p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -71,13 +71,13 @@
     </div>
 
     {#if currentStep === 0}
-      <StepRoast state={$onboarding} onnext={nextStep} />
+      <StepRoast data={$onboarding} onnext={nextStep} />
     {:else if currentStep === 1}
-      <StepProfile state={$onboarding} onnext={nextStep} onprev={prevStep} />
+      <StepProfile data={$onboarding} onnext={nextStep} onprev={prevStep} />
     {:else if currentStep === 2}
-      <StepTargets state={$onboarding} onnext={nextStep} onprev={prevStep} />
+      <StepTargets data={$onboarding} onnext={nextStep} onprev={prevStep} />
     {:else if currentStep === 3}
-      <StepReview state={$onboarding} oncomplete={complete} onprev={prevStep} />
+      <StepReview data={$onboarding} oncomplete={complete} onprev={prevStep} />
     {/if}
   </div>
 </div>

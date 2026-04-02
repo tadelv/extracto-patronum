@@ -177,8 +177,9 @@
       <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Water Quality</span>
       <div class="grid grid-cols-3 gap-4 mt-4">
         <div>
-          <label class="font-label text-xs text-on-surface-variant block mb-1">Hardness (ppm)</label>
+          <label for="water-hardness" class="font-label text-xs text-on-surface-variant block mb-1">Hardness (ppm)</label>
           <input
+            id="water-hardness"
             type="number"
             bind:value={hardness}
             placeholder="e.g. 50"
@@ -186,8 +187,9 @@
           />
         </div>
         <div>
-          <label class="font-label text-xs text-on-surface-variant block mb-1">TDS (ppm)</label>
+          <label for="water-tds" class="font-label text-xs text-on-surface-variant block mb-1">TDS (ppm)</label>
           <input
+            id="water-tds"
             type="number"
             bind:value={tds}
             placeholder="e.g. 100"
@@ -195,8 +197,9 @@
           />
         </div>
         <div>
-          <label class="font-label text-xs text-on-surface-variant block mb-1">pH</label>
+          <label for="water-ph" class="font-label text-xs text-on-surface-variant block mb-1">pH</label>
           <input
+            id="water-ph"
             type="number"
             step="0.1"
             bind:value={ph}

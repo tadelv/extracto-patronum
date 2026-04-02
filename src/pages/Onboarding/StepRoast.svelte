@@ -1,7 +1,7 @@
 <script>
   import GradientButton from '../../lib/components/GradientButton.svelte'
 
-  let { state = {}, onnext = () => {} } = $props()
+  let { data = {}, onnext = () => {} } = $props()
 
   const roastLevels = [
     { id: 'light', label: 'Light', temp: '180°C', height: 'h-12', color: 'bg-amber-300' },
@@ -12,10 +12,13 @@
 
   const processingMethods = ['Washed', 'Natural', 'Honey', 'Anaerobic']
 
-  let selectedLevel = $state(state.roast?.level ?? '')
-  let beanName = $state(state.roast?.bean?.name ?? '')
-  let beanOrigin = $state(state.roast?.bean?.origin ?? '')
-  let beanProcessing = $state(state.roast?.bean?.processing ?? 'Washed')
+  const initRoast = data.roast
+  const initBean = initRoast?.bean
+
+  let selectedLevel = $state(initRoast?.level ?? '')
+  let beanName = $state(initBean?.name ?? '')
+  let beanOrigin = $state(initBean?.origin ?? '')
+  let beanProcessing = $state(initBean?.processing ?? 'Washed')
 
   let canContinue = $derived(selectedLevel !== '' && beanName.trim() !== '')
 
@@ -68,10 +71,11 @@
     <p class="font-label text-xs tracking-widest uppercase text-primary mb-6">Bean Metadata</p>
     <div class="flex flex-col gap-5">
       <div>
-        <label class="font-label text-xs tracking-widest uppercase text-on-surface-variant mb-2 block">
+        <label class="font-label text-xs tracking-widest uppercase text-on-surface-variant mb-2 block" for="bean-name">
           Bean Identifier
         </label>
         <input
+          id="bean-name"
           type="text"
           bind:value={beanName}
           placeholder="e.g. Ethiopia Yirgacheffe"
@@ -80,10 +84,11 @@
         />
       </div>
       <div>
-        <label class="font-label text-xs tracking-widest uppercase text-on-surface-variant mb-2 block">
+        <label class="font-label text-xs tracking-widest uppercase text-on-surface-variant mb-2 block" for="bean-origin">
           Geographic Origin
         </label>
         <input
+          id="bean-origin"
           type="text"
           bind:value={beanOrigin}
           placeholder="e.g. Sidamo, Ethiopia"
@@ -92,10 +97,11 @@
         />
       </div>
       <div>
-        <label class="font-label text-xs tracking-widest uppercase text-on-surface-variant mb-2 block">
+        <label class="font-label text-xs tracking-widest uppercase text-on-surface-variant mb-2 block" for="bean-processing">
           Processing Method
         </label>
         <select
+          id="bean-processing"
           bind:value={beanProcessing}
           class="w-full bg-transparent border-b border-outline-variant font-headline text-lg text-on-surface
                  focus:border-primary focus:outline-none pb-2 transition-colors appearance-none cursor-pointer"
