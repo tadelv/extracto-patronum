@@ -7,6 +7,7 @@
   import Gauge from '../lib/components/Gauge.svelte'
   import MetricCard from '../lib/components/MetricCard.svelte'
   import GradientButton from '../lib/components/GradientButton.svelte'
+  import ExtractionChart from '../lib/components/ExtractionChart.svelte'
 
   // --- Local state ---
   let steamTemp = $state(140)
@@ -206,13 +207,8 @@
   </div>
 
   <!-- Bottom row -->
-  <!-- Extraction Curve placeholder -->
-  <div class="col-span-7 glass-panel rounded-2xl p-6 flex flex-col gap-3 min-h-48">
-    <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Extraction Curve</span>
-    <div class="flex-1 flex items-center justify-center">
-      <span class="font-body text-sm text-outline">Real-time chart will render here during extraction.</span>
-    </div>
-  </div>
+  <!-- Extraction Curve -->
+  <ExtractionChart />
 
   <!-- Extraction Intelligence -->
   <div class="col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 min-h-48">
