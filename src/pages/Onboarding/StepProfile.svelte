@@ -93,6 +93,12 @@
     >
       Back
     </button>
+    <button
+      class="px-4 py-4 font-label text-xs tracking-widest uppercase text-on-surface-variant hover:text-primary transition-colors"
+      onclick={() => onnext({ profile: null })}
+    >
+      Skip
+    </button>
     <div class="flex-1">
       <GradientButton label="Continue" disabled={!canContinue} onclick={handleContinue} />
     </div>

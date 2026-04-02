@@ -1,6 +1,6 @@
 <script>
   import { api } from '../lib/api/index.js'
-  import { shots } from '../lib/stores/shots.js'
+  import { shotsTotal, loadShots } from '../lib/stores/shots.js'
   import GradientButton from '../lib/components/GradientButton.svelte'
   import MetricCard from '../lib/components/MetricCard.svelte'
 
@@ -26,7 +26,7 @@
   let ph = $state('')
 
   // Stats
-  let totalShotsCount = $derived($shots.length)
+  let totalShotsCount = $derived($shotsTotal)
   let lastMaintenanceLabel = $derived(
     lastDescaleDate
       ? new Date(lastDescaleDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
@@ -36,6 +36,13 @@
   // Load maintenance data on mount
   $effect(() => {
     loadMaintenanceData()
+  })
+
+  // Load shots if not already loaded (for accurate total count)
+  $effect(() => {
+    if ($shotsTotal === 0) {
+      loadShots()
+    }
   })
 
   async function loadMaintenanceData() {

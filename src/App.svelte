@@ -2,7 +2,7 @@
   import Router, { replace } from 'svelte-spa-router'
   import { onMount } from 'svelte'
   import { onboarding, loadOnboarding } from './lib/stores/onboarding.js'
-  import { loadWorkflow, workflowLoading } from './lib/stores/workflow.js'
+  import { loadWorkflow } from './lib/stores/workflow.js'
   import TopBar from './lib/components/TopBar.svelte'
 
   import Dashboard from './pages/Dashboard.svelte'
