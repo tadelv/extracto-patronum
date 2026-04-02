@@ -28,6 +28,7 @@
   // --- Loading ---
   let loading = $state(true)
   let savingPrefs = $state(false)
+  let saveError = $state('')
 
   // Load settings on mount
   $effect(() => {
@@ -75,6 +76,7 @@
 
   async function savePreferences() {
     savingPrefs = true
+    saveError = ''
     try {
       await api.post(`/store/${SKIN_NS}/settings`, {
         value: JSON.stringify({
@@ -90,6 +92,7 @@
       })
     } catch (e) {
       console.error('Failed to save preferences:', e)
+      saveError = 'Failed to save preferences. Please try again.'
     } finally {
       savingPrefs = false
     }
@@ -168,6 +171,11 @@
     <span class="font-label text-sm text-on-surface-variant ml-3">Loading settings...</span>
   </div>
 {:else}
+  {#if saveError}
+    <div class="mx-6 mb-2 p-4 rounded-lg bg-error-container text-on-error-container font-body text-sm">
+      {saveError}
+    </div>
+  {/if}
   <div class="flex flex-col gap-4 px-6">
 
     <!-- Interface Mode -->

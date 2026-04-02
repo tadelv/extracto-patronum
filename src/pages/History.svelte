@@ -1,5 +1,5 @@
 <script>
-  import { shots, shotsLoading, loadShots, loadMoreShots } from '../lib/stores/shots.js'
+  import { shots, shotsLoading, shotsTotal, loadShots, loadMoreShots } from '../lib/stores/shots.js'
   import MetricCard from '../lib/components/MetricCard.svelte'
 
   let filterCoffee = $state('')
@@ -170,7 +170,7 @@
   {/if}
 
   <!-- Load more -->
-  {#if shotList.length > 0 && !loading}
+  {#if shotList.length > 0 && !loading && $shots.length < $shotsTotal}
     <div class="flex justify-center py-6">
       <button
         class="px-8 py-3 rounded-lg bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink"

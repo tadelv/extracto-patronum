@@ -49,8 +49,16 @@
       <p class="text-error font-body">{error}</p>
     </div>
   {:else if profiles.length === 0}
-    <div class="glass-panel ghost-border rounded-lg p-6 text-center">
-      <p class="text-on-surface-variant font-body">No profiles found on the machine.</p>
+    <div class="mt-10 p-8 rounded-xl bg-surface-container-low text-center">
+      <p class="text-on-surface-variant font-body mb-4">No profiles found on the machine.</p>
+      <button
+        class="px-6 py-4 font-label font-bold uppercase tracking-widest text-on-surface-variant
+               border border-outline-variant rounded-sm transition-colors hover:text-on-surface
+               hover:border-outline cursor-pointer"
+        onclick={() => onnext({ profile: null })}
+      >
+        Skip — Continue Without Profile
+      </button>
     </div>
   {:else}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">

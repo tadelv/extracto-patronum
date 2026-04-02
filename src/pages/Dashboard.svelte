@@ -45,6 +45,7 @@
     // Detect transition: brewing -> not brewing => stop
     if (!brewing && wasBrewing) {
       stopTimer()
+      loadLatestShot()
     }
     wasBrewing = brewing
   })

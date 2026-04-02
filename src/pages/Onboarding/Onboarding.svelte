@@ -13,7 +13,7 @@
     { component: StepReview, label: 'Review', num: '04' },
   ]
 
-  let currentStep = $derived($onboarding.currentStep ?? 0)
+  let currentStep = $derived(Math.min(Math.max($onboarding.currentStep ?? 0, 0), steps.length - 1))
 
   async function nextStep(data) {
     await saveOnboarding({ ...data, currentStep: currentStep + 1 })

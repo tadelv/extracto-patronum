@@ -1,4 +1,5 @@
 <script>
+  import { untrack } from 'svelte'
   import { machineState } from '../stores/machine.js'
 
   const PRESSURE_MAX = 12
@@ -25,13 +26,18 @@
   // Accumulate data while brewing
   $effect(() => {
     const brewing = ms.isBrewing
+    const pressure = ms.pressure
+    const flow = ms.flow
+
     if (brewing && !wasBrewing) {
       dataPoints = []
       brewStart = Date.now()
     }
     if (brewing) {
       const time = (Date.now() - brewStart) / 1000
-      dataPoints.push({ time, pressure: ms.pressure, flow: ms.flow })
+      untrack(() => {
+        dataPoints.push({ time, pressure, flow })
+      })
     }
     wasBrewing = brewing
   })

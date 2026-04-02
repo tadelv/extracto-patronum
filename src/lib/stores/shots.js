@@ -3,6 +3,7 @@ import { api } from '../api/index.js'
 
 export const shots = writable([])
 export const shotsLoading = writable(false)
+export const shotsTotal = writable(0)
 export const latestShot = writable(null)
 
 let currentOffset = 0
@@ -17,7 +18,10 @@ export async function loadShots(filters = {}) {
       if (val) params.set(key, val)
     }
     const result = await api.get(`/shots?${params}`)
-    const list = Array.isArray(result) ? result : (result.shots ?? [])
+    const list = Array.isArray(result) ? result : (result.items ?? [])
+    if (!Array.isArray(result) && result.total != null) {
+      shotsTotal.set(result.total)
+    }
     shots.set(list)
     currentOffset = list.length
   } catch (e) {
@@ -35,7 +39,10 @@ export async function loadMoreShots(filters = {}) {
       if (val) params.set(key, val)
     }
     const result = await api.get(`/shots?${params}`)
-    const list = Array.isArray(result) ? result : (result.shots ?? [])
+    const list = Array.isArray(result) ? result : (result.items ?? [])
+    if (!Array.isArray(result) && result.total != null) {
+      shotsTotal.set(result.total)
+    }
     shots.update((current) => [...current, ...list])
     currentOffset += list.length
   } catch (e) {

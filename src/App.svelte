@@ -25,7 +25,14 @@
   let loading = true
 
   onMount(async () => {
-    await Promise.all([loadOnboarding(), loadWorkflow()])
+    try {
+      await Promise.race([
+        Promise.all([loadOnboarding(), loadWorkflow()]),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+      ])
+    } catch (e) {
+      console.warn('Failed to load initial state:', e)
+    }
     loading = false
 
     const hash = window.location.hash

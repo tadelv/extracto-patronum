@@ -17,8 +17,10 @@ export async function loadWorkflow() {
       await api.put('/workflow', parsed).catch(() => {})
     } else {
       const bridgeWorkflow = await api.get('/workflow')
-      workflow.set(bridgeWorkflow)
-      await persistToSkinStore(bridgeWorkflow)
+      if (bridgeWorkflow) {
+        workflow.set(bridgeWorkflow)
+        await persistToSkinStore(bridgeWorkflow)
+      }
     }
   } catch (e) {
     console.error('Failed to load workflow:', e)
@@ -38,7 +40,14 @@ async function persistToSkinStore(data) {
 
 export async function updateWorkflow(updates) {
   const current = get(workflow)
-  const updated = { ...current, ...updates }
+  const updated = {
+    ...current,
+    ...updates,
+    context: { ...(current?.context ?? {}), ...(updates.context ?? {}) },
+  }
+  if (updates.profile !== undefined) {
+    updated.profile = updates.profile
+  }
   workflow.set(updated)
   await Promise.all([
     api.put('/workflow', updated),

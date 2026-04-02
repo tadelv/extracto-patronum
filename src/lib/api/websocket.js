@@ -19,6 +19,7 @@ export function createSocket(wsBase, path) {
     }
 
     ws.onclose = () => {
+      store.set(null)
       if (!stopped) {
         reconnectTimer = setTimeout(connect, 2000)
       }
