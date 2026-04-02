@@ -83,6 +83,11 @@
           preferredScale,
         }),
       })
+      // Also update Bridge auto-connect settings
+      await api.post('/settings', {
+        preferredMachineId: preferredMachine,
+        preferredScaleId: preferredScale,
+      })
     } catch (e) {
       console.error('Failed to save preferences:', e)
     } finally {
@@ -111,11 +116,18 @@
     }
   }
 
+  function parseDays(selection) {
+    if (selection === 'daily') return [1, 2, 3, 4, 5, 6, 7]
+    if (selection === 'weekdays') return [1, 2, 3, 4, 5]
+    if (selection === 'weekends') return [6, 7]
+    return [1, 2, 3, 4, 5, 6, 7]
+  }
+
   async function addSchedule() {
     try {
       await api.post('/presence/schedules', {
         time: newScheduleTime,
-        days: newScheduleDays,
+        daysOfWeek: parseDays(newScheduleDays),
         enabled: true,
       })
       await loadSchedules()
@@ -126,7 +138,7 @@
 
   async function deleteSchedule(id) {
     try {
-      await api.delete(`/presence/schedules/${id}`)
+      await api.del(`/presence/schedules/${id}`)
       await loadSchedules()
     } catch (e) {
       console.error('Failed to delete schedule:', e)

@@ -13,7 +13,7 @@
   let steamTemp = $state(140)
   let timerMs = $state(0)
   let timerRunning = $state(false)
-  let wasBrewing = $state(false)
+  let wasBrewing = false
   let steamLoading = $state(false)
   let rinseLoading = $state(false)
 

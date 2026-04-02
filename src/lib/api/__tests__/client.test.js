@@ -8,6 +8,8 @@ describe('REST client', () => {
   beforeEach(() => {
     fetchMock = vi.fn(() => Promise.resolve({
       ok: true,
+      status: 200,
+      headers: new Headers({ 'content-type': 'application/json' }),
       json: () => Promise.resolve({ data: 'test' }),
     }))
     vi.stubGlobal('fetch', fetchMock)
@@ -52,8 +54,19 @@ describe('REST client', () => {
   })
 
   it('throws on non-OK response', async () => {
-    fetchMock.mockResolvedValueOnce({ ok: false, status: 404, statusText: 'Not Found' })
+    fetchMock.mockResolvedValueOnce({ ok: false, status: 404, statusText: 'Not Found', headers: new Headers() })
     await expect(client.get('/nope')).rejects.toThrow('404')
+  })
+
+  it('returns null on 204 No Content', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 204,
+      headers: new Headers(),
+      json: () => { throw new Error('should not be called') },
+    })
+    const result = await client.del('/shots/123')
+    expect(result).toBeNull()
   })
 
   it('returns parsed JSON', async () => {

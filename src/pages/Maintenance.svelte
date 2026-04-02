@@ -85,7 +85,7 @@
   async function startFlush() {
     flushLoading = true
     try {
-      await api.put('/machine/state/flush')
+      await api.put('/machine/state/cleaning')
     } catch (e) {
       console.error('Failed to start flush:', e)
     } finally {
@@ -160,7 +160,7 @@
           </label>
         {/each}
         <div class="mt-2">
-          <GradientButton label={flushLoading ? 'Flushing...' : 'Start Flush'} disabled={flushLoading} onclick={startFlush} />
+          <GradientButton label={flushLoading ? 'Cleaning...' : 'Start Cleaning Cycle'} disabled={flushLoading} onclick={startFlush} />
         </div>
       </div>
     </div>

@@ -30,14 +30,15 @@
 
       // 2. Update workflow with full context
       await updateWorkflow({
-        coffee_name: coffee.name || '',
-        coffee_origin: coffee.origin || '',
-        coffee_roast: roastLevel,
-        coffee_processing: coffee.processing || '',
-        profile_id: profile.id || null,
-        profile_title: profile.title || profile.name || '',
-        dose,
-        yield: yieldTarget,
+        context: {
+          coffeeName: coffee.name || '',
+          coffeeRoaster: coffee.origin || '',
+          coffeeRoast: roastLevel,
+          coffeeProcessing: coffee.processing || '',
+          targetDoseWeight: dose,
+          targetYield: yieldTarget,
+        },
+        profile: profile.profile ?? profile,
       })
 
       // 3. Complete onboarding
@@ -75,9 +76,9 @@
     <!-- Profile card -->
     <div class="glass-panel ghost-border rounded-lg p-5">
       <p class="font-label text-xs tracking-widest uppercase text-primary mb-3">Profile</p>
-      <p class="font-headline font-bold text-on-surface">{profile.title ?? profile.name ?? 'Not set'}</p>
-      {#if profile.author}
-        <p class="font-body text-sm text-on-surface-variant mt-1">by {profile.author}</p>
+      <p class="font-headline font-bold text-on-surface">{profile.profile?.title ?? profile.title ?? profile.name ?? 'Not set'}</p>
+      {#if profile.profile?.author ?? profile.author}
+        <p class="font-body text-sm text-on-surface-variant mt-1">by {profile.profile?.author ?? profile.author}</p>
       {/if}
     </div>
 

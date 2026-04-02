@@ -19,6 +19,7 @@
     '/history': History,
     '/maintenance': Maintenance,
     '/settings': Settings,
+    '*': Dashboard,
   }
 
   let loading = true

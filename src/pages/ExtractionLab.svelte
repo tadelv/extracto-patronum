@@ -1,5 +1,6 @@
 <script>
   import { workflow, updateWorkflow } from '../lib/stores/workflow.js'
+  import { get } from 'svelte/store'
   import GradientButton from '../lib/components/GradientButton.svelte'
 
   // --- Local editable state ---
@@ -50,15 +51,26 @@
   async function save() {
     saving = true
     try {
+      // Update first profile step with pressure/flow if steps exist
+      const currentSteps = wf?.profile?.steps ? [...wf.profile.steps] : []
+      if (currentSteps.length > 0) {
+        currentSteps[0] = {
+          ...currentSteps[0],
+          pressure: targetPressure,
+          flow: targetFlow,
+        }
+      }
       const updates = {
         context: {
           ...(wf?.context ?? {}),
           targetDoseWeight: dose,
+          targetYield: wf?.context?.targetYield ?? 0,
           grinderSetting,
         },
         profile: {
           ...(wf?.profile ?? {}),
           tank_temperature: temperature,
+          steps: currentSteps,
         },
       }
       await updateWorkflow(updates)
@@ -71,6 +83,15 @@
   }
 
   function reset() {
+    const current = get(workflow)
+    dose = current?.context?.targetDoseWeight ?? 18
+    grinderSetting = current?.context?.grinderSetting ?? ''
+    const tankTemp = current?.profile?.tank_temperature
+    const firstStepTemp = current?.profile?.steps?.[0]?.temperature
+    temperature = tankTemp ?? firstStepTemp ?? 93
+    const firstStep = current?.profile?.steps?.[0]
+    targetPressure = firstStep?.pressure ?? 9
+    targetFlow = firstStep?.flow ?? 2
     dirty = false
   }
 </script>

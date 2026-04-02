@@ -11,6 +11,9 @@ export function createClient(baseUrl) {
     if (!res.ok) {
       throw new Error(`${res.status} ${res.statusText}`)
     }
+    if (res.status === 204 || res.headers.get('content-length') === '0') {
+      return null
+    }
     return res.json()
   }
 

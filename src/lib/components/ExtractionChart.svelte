@@ -9,7 +9,7 @@
 
   let dataPoints = $state([])
   let brewStart = $state(0)
-  let wasBrewing = $state(false)
+  let wasBrewing = false
 
   let ms = $derived($machineState)
   let hasData = $derived(dataPoints.length > 0)
@@ -31,7 +31,7 @@
     }
     if (brewing) {
       const time = (Date.now() - brewStart) / 1000
-      dataPoints = [...dataPoints, { time, pressure: ms.pressure, flow: ms.flow }]
+      dataPoints.push({ time, pressure: ms.pressure, flow: ms.flow })
     }
     wasBrewing = brewing
   })

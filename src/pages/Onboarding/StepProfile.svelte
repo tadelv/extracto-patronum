@@ -63,13 +63,13 @@
           onclick={() => selectedId = profile.id}
         >
           <h3 class="font-headline font-bold text-on-surface mb-1 truncate">
-            {profile.title ?? profile.name ?? 'Untitled'}
+            {profile.profile?.title ?? profile.title ?? 'Untitled'}
           </h3>
-          {#if profile.author}
-            <p class="font-label text-xs text-on-surface-variant mb-2">by {profile.author}</p>
+          {#if profile.profile?.author ?? profile.author}
+            <p class="font-label text-xs text-on-surface-variant mb-2">by {profile.profile?.author ?? profile.author}</p>
           {/if}
-          {#if profile.notes}
-            <p class="font-body text-xs text-on-surface-variant line-clamp-2">{profile.notes}</p>
+          {#if profile.profile?.notes ?? profile.notes}
+            <p class="font-body text-xs text-on-surface-variant line-clamp-2">{profile.profile?.notes ?? profile.notes}</p>
           {/if}
         </button>
       {/each}
