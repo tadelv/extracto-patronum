@@ -49,7 +49,7 @@
           class="flex flex-col items-center gap-2 px-4 py-3 rounded-md transition-all cursor-pointer"
           class:ring-2={selectedLevel === roast.id}
           class:ring-primary={selectedLevel === roast.id}
-          class:bg-primary/10={selectedLevel === roast.id}
+          style:background-color={selectedLevel === roast.id ? 'oklch(from var(--color-primary) l c h / 0.1)' : undefined}
           onclick={() => selectedLevel = roast.id}
         >
           <div class="w-10 {roast.height} {roast.color} rounded-sm transition-all"

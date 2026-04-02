@@ -1,5 +1,5 @@
 <script>
-  import Router, { replace, location } from 'svelte-spa-router'
+  import Router, { replace } from 'svelte-spa-router'
   import { onMount } from 'svelte'
   import { onboarding, loadOnboarding } from './lib/stores/onboarding.js'
   import { loadWorkflow, workflowLoading } from './lib/stores/workflow.js'

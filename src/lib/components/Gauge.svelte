@@ -4,7 +4,7 @@
   const strokeWidth = 6
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
-  $: dashOffset = circumference - (Math.min(value / max, 1) * circumference)
+  let dashOffset = $derived(circumference - (Math.min(value / max, 1) * circumference))
 </script>
 
 <div class="relative inline-flex items-center justify-center" style="width: {size}px; height: {size}px;">

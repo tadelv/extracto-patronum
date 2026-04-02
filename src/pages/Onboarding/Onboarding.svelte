@@ -45,7 +45,7 @@
           class:text-primary={i === currentStep}
           class:border-r-2={i === currentStep}
           class:border-primary={i === currentStep}
-          class:bg-primary/5={i === currentStep}
+          style:background-color={i === currentStep ? 'oklch(from var(--color-primary) l c h / 0.05)' : undefined}
           class:text-on-surface-variant={i !== currentStep}
           class:opacity-50={i > currentStep}
         >

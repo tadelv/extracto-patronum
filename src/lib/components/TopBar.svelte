@@ -1,5 +1,5 @@
 <script>
-  import { link, location } from 'svelte-spa-router'
+  import { link, router } from 'svelte-spa-router'
   import { machineState } from '../stores/machine.js'
   import { scaleState } from '../stores/scale.js'
   import { scanDevices } from '../stores/devices.js'
@@ -60,10 +60,10 @@
         href={item.path}
         use:link
         class="px-4 py-1.5 text-xs font-label tracking-widest uppercase transition-colors rounded-sm"
-        class:text-primary={$location === item.path}
-        class:bg-surface-container={$location === item.path}
-        class:text-on-surface-variant={$location !== item.path}
-        class:hover:text-primary={$location !== item.path}
+        class:text-primary={router.location === item.path}
+        class:bg-surface-container={router.location === item.path}
+        class:text-on-surface-variant={router.location !== item.path}
+        class:hover:text-primary={router.location !== item.path}
       >
         {item.label}
       </a>
