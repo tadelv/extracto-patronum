@@ -117,6 +117,20 @@
     }
   })
 
+  async function applySteamSettings() {
+    steamLoading = true
+    try {
+      await api.post('/machine/shotSettings', {
+        ...currentSettings,
+        targetSteamTemp: steamTemp,
+      })
+    } catch (e) {
+      console.error('Failed to apply steam settings:', e)
+    } finally {
+      steamLoading = false
+    }
+  }
+
   async function startSteam() {
     steamLoading = true
     try {
@@ -127,6 +141,17 @@
       await api.put('/machine/state/steam')
     } catch (e) {
       console.error('Failed to start steam:', e)
+    } finally {
+      steamLoading = false
+    }
+  }
+
+  async function stopSteam() {
+    steamLoading = true
+    try {
+      await api.put('/machine/state/idle')
+    } catch (e) {
+      console.error('Failed to stop steam:', e)
     } finally {
       steamLoading = false
     }
@@ -250,20 +275,22 @@
       <div class="h-4"></div>
     {/if}
 
-    {#if ms.isBrewing}
-      <button
-        class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
-        class:opacity-50={brewLoading}
-        disabled={brewLoading}
-        onclick={stopEspresso}
-      >Stop</button>
-    {:else}
-      <button
-        class="w-full py-3 gradient-cta text-on-primary-fixed font-label font-bold uppercase tracking-widest rounded-sm tactile-sink transition-opacity"
-        class:opacity-50={brewLoading || !ms.isIdle}
-        disabled={brewLoading || !ms.isIdle}
-        onclick={startEspresso}
-      >Start Shot</button>
+    {#if !hasGHC}
+      {#if ms.isBrewing}
+        <button
+          class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
+          class:opacity-50={brewLoading}
+          disabled={brewLoading}
+          onclick={stopEspresso}
+        >Stop</button>
+      {:else}
+        <button
+          class="w-full py-3 gradient-cta text-on-primary-fixed font-label font-bold uppercase tracking-widest rounded-sm tactile-sink transition-opacity"
+          class:opacity-50={brewLoading || !ms.isIdle}
+          disabled={brewLoading || !ms.isIdle}
+          onclick={startEspresso}
+        >Start Shot</button>
+      {/if}
     {/if}
   </div>
 
@@ -301,7 +328,18 @@
     <!-- Buttons -->
     <div class="flex gap-3 mt-auto">
       <div class="flex-1">
-        <GradientButton label="Start Steam" disabled={steamLoading || ms.isSteaming} onclick={startSteam} />
+        {#if ms.isSteaming}
+          <button
+            class="w-full py-4 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
+            class:opacity-50={steamLoading}
+            disabled={steamLoading}
+            onclick={stopSteam}
+          >Stop Steam</button>
+        {:else if hasGHC}
+          <GradientButton label="Apply" disabled={steamLoading} onclick={applySteamSettings} />
+        {:else}
+          <GradientButton label="Start Steam" disabled={steamLoading || !ms.isIdle} onclick={startSteam} />
+        {/if}
       </div>
       <button
         class="px-5 py-4 rounded-sm bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
