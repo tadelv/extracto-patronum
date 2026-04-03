@@ -209,11 +209,11 @@
 
   <!-- Metrics row -->
   <div class="col-span-12 grid grid-cols-5 gap-4">
-    <MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" icon="🌡" />
-    <MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" icon="🔥" />
-    <MetricCard label="Weight" value={sc.weight.toFixed(1)} unit="g" icon="⚖" />
-    <MetricCard label="Target Yield" value={targetYield} unit="g" icon="🎯" />
-    <MetricCard label="Dose" value={targetDose} unit="g" icon="☕" />
+    <MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" />
+    <MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" />
+    <MetricCard label="Weight" value={sc.weight.toFixed(1)} unit="g" />
+    <MetricCard label="Target Yield" value={targetYield} unit="g" />
+    <MetricCard label="Dose" value={targetDose} unit="g" />
   </div>
 
   <!-- Bottom row -->

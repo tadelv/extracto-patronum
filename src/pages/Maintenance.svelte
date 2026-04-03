@@ -220,9 +220,9 @@
 
     <!-- Cycle Stats -->
     <div class="col-span-12 grid grid-cols-3 gap-4">
-      <MetricCard label="Total Shots" value={totalShotsCount} icon="" />
-      <MetricCard label="Last Maintenance" value={lastMaintenanceLabel} icon="" />
-      <MetricCard label="Days Since Descale" value={daysSinceDescale} icon="" />
+      <MetricCard label="Total Shots" value={totalShotsCount} />
+      <MetricCard label="Last Maintenance" value={lastMaintenanceLabel} />
+      <MetricCard label="Days Since Descale" value={daysSinceDescale} />
     </div>
   </div>
 {/if}

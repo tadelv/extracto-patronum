@@ -182,7 +182,7 @@
 
 <!-- Stats footer -->
 <div class="px-6 grid grid-cols-3 gap-4 pb-6">
-  <MetricCard label="Total Shots" value={totalShots} icon="" />
-  <MetricCard label="Avg Dose" value={avgDose} unit="g" icon="" />
-  <MetricCard label="Avg Enjoyment" value={avgEnjoyment} unit="/5" icon="" />
+  <MetricCard label="Total Shots" value={totalShots} />
+  <MetricCard label="Avg Dose" value={avgDose} unit="g" />
+  <MetricCard label="Avg Enjoyment" value={avgEnjoyment} unit="/5" />
 </div>
