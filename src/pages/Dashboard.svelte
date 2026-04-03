@@ -18,6 +18,8 @@
   let steamLoading = $state(false)
   let rinseLoading = $state(false)
   let brewLoading = $state(false)
+  let notesText = $state('')
+  let notesSaved = $state(false)
 
   // --- Derived values ---
   let ms = $derived($machineState)
@@ -65,6 +67,14 @@
   // Load latest shot on mount
   $effect(() => {
     loadLatestShot()
+  })
+
+  // Sync notes text when latest shot changes
+  $effect(() => {
+    if (shot) {
+      notesText = shot.annotations?.espressoNotes ?? shot.shotNotes ?? ''
+      notesSaved = false
+    }
   })
 
   function startTimer() {
@@ -127,6 +137,18 @@
       console.error('Failed to stop espresso:', e)
     } finally {
       brewLoading = false
+    }
+  }
+
+  async function saveNotes() {
+    if (!shot?.id) return
+    try {
+      await api.put(`/shots/${shot.id}`, {
+        annotations: { ...shot.annotations, espressoNotes: notesText },
+      })
+      notesSaved = true
+    } catch (e) {
+      console.error('Failed to save notes:', e)
     }
   }
 
@@ -280,32 +302,27 @@
   <!-- Extraction Curve -->
   <ExtractionChart />
 
-  <!-- Extraction Intelligence -->
+  <!-- Extraction Notes -->
   <div class="col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 min-h-48">
-    <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Extraction Intelligence</span>
+    <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Extraction Notes</span>
     {#if shot}
-      <div class="flex flex-col gap-2 overflow-y-auto">
+      <textarea
+        class="flex-1 bg-transparent text-on-surface font-body text-sm leading-relaxed resize-none outline-none placeholder:text-outline"
+        placeholder="How was this shot? Tasting notes, observations..."
+        bind:value={notesText}
+        onfocusout={saveNotes}
+      ></textarea>
+      <div class="flex items-center justify-between">
         {#if shot.annotations?.enjoyment}
-          <div class="flex items-center gap-2">
-            <span class="font-label text-xs text-on-surface-variant">Enjoyment</span>
-            <span class="font-label text-lg font-bold text-primary">{shot.annotations.enjoyment}/5</span>
-          </div>
+          <span class="font-label text-xs text-on-surface-variant">Enjoyment: <span class="text-primary font-bold">{shot.annotations.enjoyment}/5</span></span>
         {/if}
-        {#if shot.annotations?.actualYield}
-          <div class="flex items-center gap-2">
-            <span class="font-label text-xs text-on-surface-variant">Actual Yield</span>
-            <span class="font-label text-sm text-on-surface">{shot.annotations.actualYield}g</span>
-          </div>
-        {/if}
-        {#if shot.shotNotes || shot.annotations?.espressoNotes}
-          <p class="font-body text-sm text-on-surface-variant leading-relaxed">
-            {shot.annotations?.espressoNotes ?? shot.shotNotes}
-          </p>
+        {#if notesSaved}
+          <span class="font-label text-xs text-primary">Saved</span>
         {/if}
       </div>
     {:else}
       <div class="flex-1 flex items-center justify-center">
-        <span class="font-body text-sm text-outline">No shot data yet. Brew your first espresso!</span>
+        <span class="font-body text-sm text-outline">Pull a shot to add notes</span>
       </div>
     {/if}
   </div>
