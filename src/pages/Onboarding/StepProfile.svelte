@@ -194,9 +194,9 @@
               <span class="font-label text-xs text-on-surface-variant">by {profile.profile.author}</span>
             {/if}
             {#if rl}
-              <span class="font-label text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm text-primary"
-                class:bg-primary/15={isSelected}
-                class:bg-surface-container-highest={!isSelected}
+              <span
+                class="font-label text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm text-primary"
+                style:background-color={isSelected ? 'oklch(from var(--color-primary) l c h / 0.15)' : 'var(--color-surface-container-highest)'}
               >{rl}</span>
             {/if}
           </div>
