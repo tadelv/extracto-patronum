@@ -1,7 +1,7 @@
 <script>
   import GradientButton from '../../lib/components/GradientButton.svelte'
 
-  let { data = {}, onnext = () => {} } = $props()
+  let { data = {}, suggestions = null, onnext = () => {} } = $props()
 
   const roastLevels = [
     { id: 'light', label: 'Light', temp: '180°C', height: 'h-12', color: 'bg-amber-300' },
@@ -20,7 +20,14 @@
   let beanOrigin = $state(initBean?.origin ?? '')
   let beanProcessing = $state(initBean?.processing ?? 'Washed')
 
+  let hasSuggestion = $derived(suggestions?.coffee?.name && !beanName)
   let canContinue = $derived(selectedLevel !== '' && beanName.trim() !== '')
+
+  function applySuggestion() {
+    if (!suggestions?.coffee) return
+    beanName = suggestions.coffee.name
+    beanOrigin = suggestions.coffee.origin ?? ''
+  }
 
   function handleContinue() {
     if (!canContinue) return
@@ -42,6 +49,22 @@
   <p class="font-body text-on-surface-variant mb-8">
     Choose the roast level for your beans. This helps calibrate extraction parameters.
   </p>
+
+  {#if hasSuggestion}
+    <button
+      class="w-full mb-6 p-4 rounded-xl bg-surface-container copper-glow text-left transition-colors hover:bg-surface-container-high click-sink"
+      onclick={applySuggestion}
+    >
+      <span class="font-label text-xs tracking-widest uppercase text-primary">Suggested from recent shots</span>
+      <div class="flex items-baseline gap-2 mt-1">
+        <span class="font-headline font-bold text-lg text-on-surface">{suggestions.coffee.name}</span>
+        {#if suggestions.coffee.count > 1}
+          <span class="font-label text-xs text-on-surface-variant">{suggestions.coffee.count} shots in last 14 days</span>
+        {/if}
+      </div>
+      <span class="font-label text-xs text-on-surface-variant mt-1">Tap to use</span>
+    </button>
+  {/if}
 
   <!-- Roast Spectrum Selector -->
   <div class="copper-glow ghost-border rounded-lg p-6 mb-8">

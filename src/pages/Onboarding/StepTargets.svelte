@@ -1,12 +1,12 @@
 <script>
   import GradientButton from '../../lib/components/GradientButton.svelte'
 
-  let { data = {}, onnext = () => {}, onprev = () => {} } = $props()
+  let { data = {}, suggestions = null, onnext = () => {}, onprev = () => {} } = $props()
 
   const initTargets = data.targets
 
-  let dose = $state(initTargets?.dose ?? 18.5)
-  let yieldTarget = $state(initTargets?.yield ?? 37.0)
+  let dose = $state(initTargets?.dose ?? suggestions?.dose ?? 18.5)
+  let yieldTarget = $state(initTargets?.yield ?? suggestions?.yield ?? 37.0)
 
   let ratio = $derived(dose > 0 ? (yieldTarget / dose) : 0)
   let ratioDisplay = $derived(ratio.toFixed(1))

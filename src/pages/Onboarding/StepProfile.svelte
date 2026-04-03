@@ -3,7 +3,7 @@
   import { api } from '../../lib/api/index.js'
   import GradientButton from '../../lib/components/GradientButton.svelte'
 
-  let { data = {}, onnext = () => {}, onprev = () => {} } = $props()
+  let { data = {}, suggestions = null, onnext = () => {}, onprev = () => {} } = $props()
 
   const initProfileId = data.profile?.id ?? null
 
@@ -19,6 +19,14 @@
     try {
       const res = await api.get('/profiles')
       profiles = Array.isArray(res) ? res : (res?.profiles ?? [])
+
+      // Auto-select suggested profile if no prior selection
+      if (!selectedId && suggestions?.profile?.title) {
+        const match = profiles.find(p =>
+          (p.profile?.title ?? p.title) === suggestions.profile.title
+        )
+        if (match) selectedId = match.id
+      }
     } catch (e) {
       error = 'Failed to load profiles. Check your connection to the machine.'
       console.error('Failed to fetch profiles:', e)
@@ -63,6 +71,13 @@
       </button>
     </div>
   {:else}
+    {#if suggestions?.profile?.title && selectedId}
+      <div class="mb-4 px-4 py-3 rounded-lg bg-surface-container">
+        <span class="font-label text-xs tracking-widest uppercase text-primary">Suggested:</span>
+        <span class="font-body text-sm text-on-surface ml-2">{suggestions.profile.title}</span>
+        <span class="font-label text-xs text-on-surface-variant ml-1">({suggestions.profile.count} recent shots)</span>
+      </div>
+    {/if}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
       {#each profiles as profile}
         <button
