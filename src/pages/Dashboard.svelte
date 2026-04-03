@@ -17,6 +17,7 @@
   let wasBrewing = false
   let steamLoading = $state(false)
   let rinseLoading = $state(false)
+  let brewLoading = $state(false)
 
   // --- Derived values ---
   let ms = $derived($machineState)
@@ -107,6 +108,28 @@
     }
   }
 
+  async function startEspresso() {
+    brewLoading = true
+    try {
+      await api.put('/machine/state/espresso')
+    } catch (e) {
+      console.error('Failed to start espresso:', e)
+    } finally {
+      brewLoading = false
+    }
+  }
+
+  async function stopEspresso() {
+    brewLoading = true
+    try {
+      await api.put('/machine/state/idle')
+    } catch (e) {
+      console.error('Failed to stop espresso:', e)
+    } finally {
+      brewLoading = false
+    }
+  }
+
   async function startRinse() {
     rinseLoading = true
     try {
@@ -130,12 +153,6 @@
   <span class="font-label text-sm text-on-surface-variant truncate max-w-48">{profileTitle}</span>
 </div>
 
-{#if !hasGHC}
-  <div class="mx-6 mb-2 px-4 py-2 rounded-lg bg-surface-container-low">
-    <span class="font-label text-xs tracking-wide text-on-surface-variant">No Group Head Controller detected -- start shots from this app or another interface.</span>
-  </div>
-{/if}
-
 <!-- Main grid -->
 <div class="grid grid-cols-12 gap-4 px-6">
 
@@ -144,8 +161,11 @@
     <DualGauge pressure={ms.pressure} maxPressure={12} flow={ms.flow} maxFlow={8} size={260} />
   </div>
 
-  <!-- Shot Timer -->
-  <div class="col-span-3 glass-panel rounded-2xl p-6 flex flex-col items-center justify-center gap-4">
+  <!-- Shot Timer + Brew Control -->
+  <div
+    class="col-span-3 glass-panel rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-shadow duration-500"
+    class:ambient-glow-active={ms.isBrewing}
+  >
     <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Shot Timer</span>
     <span class="font-mono text-5xl font-bold text-on-surface tabular-nums">{timerDisplay}</span>
     {#if timerRunning}
@@ -159,6 +179,22 @@
       </div>
     {:else}
       <div class="h-4"></div>
+    {/if}
+
+    {#if ms.isBrewing}
+      <button
+        class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
+        class:opacity-50={brewLoading}
+        disabled={brewLoading}
+        onclick={stopEspresso}
+      >Stop</button>
+    {:else}
+      <button
+        class="w-full py-3 gradient-cta text-on-primary-fixed font-label font-bold uppercase tracking-widest rounded-sm tactile-sink transition-opacity"
+        class:opacity-50={brewLoading || !ms.isIdle}
+        disabled={brewLoading || !ms.isIdle}
+        onclick={startEspresso}
+      >Start Espresso</button>
     {/if}
   </div>
 
