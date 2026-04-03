@@ -54,12 +54,15 @@
       if (roastLevel === 'light' && title.includes('light')) score += 5
       if (roastLevel === 'medium' && title.includes('medium') && !title.includes('dark')) score += 5
 
+      // Boost pre-selected profile to top
+      if (p.id === selectedId) score += 100
+
       return { ...p, _score: score }
     }).sort((a, b) => b._score - a._score)
   })
 
   // Show recommended (score > 0) vs all espresso
-  let recommendedProfiles = $derived(rankedProfiles.filter(p => p._score > 0))
+  let recommendedProfiles = $derived(rankedProfiles.filter(p => p._score > 0 || p.id === selectedId))
   let displayProfiles = $derived(showAll ? rankedProfiles : (recommendedProfiles.length > 0 ? recommendedProfiles : rankedProfiles))
 
   let selectedProfile = $derived(allProfiles.find(p => p.id === selectedId) ?? null)
