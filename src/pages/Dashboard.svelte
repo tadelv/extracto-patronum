@@ -170,8 +170,8 @@
     class:grid-cols-5={sc.connected}
     class:grid-cols-4={!sc.connected}
   >
-    <MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" />
-    <MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" />
+    <MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" href="/lab" />
+    <MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" href="/lab" />
     {#if sc.connected}
       <button
         class="bg-surface-container-low px-4 py-3 rounded-xl ghost-border flex flex-col gap-1 text-left cursor-pointer hover:bg-surface-container transition-colors click-sink"
@@ -185,8 +185,8 @@
         </div>
       </button>
     {/if}
-    <MetricCard label="Target Yield" value={targetYield} unit="g" />
-    <MetricCard label="Dose" value={targetDose} unit="g" />
+    <MetricCard label="Target Yield" value={targetYield} unit="g" href="/lab" />
+    <MetricCard label="Dose" value={targetDose} unit="g" href="/lab" />
   </div>
 
   <!-- Dual Gauges -->
