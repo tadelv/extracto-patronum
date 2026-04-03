@@ -13,7 +13,7 @@
   let totalShots = $derived(shotList.length)
   let avgDose = $derived(
     shotList.length > 0
-      ? (shotList.reduce((sum, s) => sum + (s.dose ?? s.annotations?.dose ?? 0), 0) / shotList.length).toFixed(1)
+      ? (shotList.reduce((sum, s) => sum + (s.annotations?.actualDoseWeight ?? s.workflow?.context?.targetDoseWeight ?? 0), 0) / shotList.length).toFixed(1)
       : '—'
   )
   let avgEnjoyment = $derived(
@@ -126,11 +126,11 @@
       onclick={() => toggleExpand(id)}
     >
       <span class="col-span-3 font-label text-sm text-on-surface truncate">{formatDate(shot.timestamp ?? shot.date)}</span>
-      <span class="col-span-2 font-label text-sm text-on-surface truncate">{shot.coffeeName ?? shot.annotations?.coffeeName ?? '—'}</span>
-      <span class="col-span-1 font-label text-sm text-on-surface text-right tabular-nums">{shot.dose ?? shot.annotations?.dose ?? '—'}</span>
-      <span class="col-span-1 font-label text-sm text-on-surface text-right tabular-nums">{shot.yield ?? shot.annotations?.actualYield ?? '—'}</span>
-      <span class="col-span-1 font-label text-sm text-on-surface text-right tabular-nums">{formatTime(shot.duration ?? shot.totalTime)}</span>
-      <span class="col-span-2 font-label text-sm text-on-surface-variant truncate">{shot.profileTitle ?? '—'}</span>
+      <span class="col-span-2 font-label text-sm text-on-surface truncate">{shot.workflow?.context?.coffeeName ?? '—'}</span>
+      <span class="col-span-1 font-label text-sm text-on-surface text-right tabular-nums">{shot.annotations?.actualDoseWeight ?? shot.workflow?.context?.targetDoseWeight ?? '—'}</span>
+      <span class="col-span-1 font-label text-sm text-on-surface text-right tabular-nums">{shot.annotations?.actualYield ?? shot.workflow?.context?.targetYield ?? '—'}</span>
+      <span class="col-span-1 font-label text-sm text-on-surface text-right tabular-nums">—</span>
+      <span class="col-span-2 font-label text-sm text-on-surface-variant truncate">{shot.workflow?.profile?.title ?? '—'}</span>
       <span class="col-span-2 font-label text-sm text-primary text-center">{renderStars(shot.annotations?.enjoyment)}</span>
     </button>
 
@@ -141,20 +141,23 @@
             {shot.annotations?.espressoNotes ?? shot.shotNotes}
           </p>
         {/if}
-        {#if shot.annotations}
+        {#if shot.annotations || shot.workflow?.context}
           <div class="flex flex-wrap gap-4 text-xs font-label text-on-surface-variant">
-            {#if shot.annotations.grindSetting}
-              <span>Grind: {shot.annotations.grindSetting}</span>
+            {#if shot.workflow?.context?.grinderSetting}
+              <span>Grind: {shot.workflow.context.grinderSetting}</span>
             {/if}
-            {#if shot.annotations.beanWeight}
-              <span>Bean: {shot.annotations.beanWeight}g</span>
+            {#if shot.workflow?.context?.coffeeRoaster}
+              <span>Roaster: {shot.workflow.context.coffeeRoaster}</span>
             {/if}
-            {#if shot.annotations.drinkWeight}
-              <span>Drink: {shot.annotations.drinkWeight}g</span>
+            {#if shot.annotations?.drinkTds}
+              <span>TDS: {shot.annotations.drinkTds}</span>
+            {/if}
+            {#if shot.annotations?.drinkEy}
+              <span>EY: {shot.annotations.drinkEy}%</span>
             {/if}
           </div>
         {/if}
-        {#if !shot.shotNotes && !shot.annotations?.espressoNotes && !shot.annotations}
+        {#if !shot.shotNotes && !shot.annotations?.espressoNotes && !shot.annotations && !shot.workflow?.context}
           <span class="font-body text-sm text-outline">No additional details for this shot.</span>
         {/if}
       </div>
