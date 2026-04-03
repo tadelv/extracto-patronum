@@ -5,7 +5,7 @@
   import { workflow } from '../lib/stores/workflow.js'
   import { latestShot, loadLatestShot } from '../lib/stores/shots.js'
   import { api } from '../lib/api/index.js'
-  import Gauge from '../lib/components/Gauge.svelte'
+  import DualGauge from '../lib/components/DualGauge.svelte'
   import MetricCard from '../lib/components/MetricCard.svelte'
   import GradientButton from '../lib/components/GradientButton.svelte'
   import ExtractionChart from '../lib/components/ExtractionChart.svelte'
@@ -140,9 +140,8 @@
 <div class="grid grid-cols-12 gap-4 px-6">
 
   <!-- Dual Gauges -->
-  <div class="col-span-4 glass-panel copper-glow rounded-2xl p-6 flex items-center justify-center gap-6">
-    <Gauge value={ms.pressure} max={12} label="Pressure" unit="bar" size={160} color="var(--color-primary)" />
-    <Gauge value={ms.flow} max={8} label="Flow" unit="ml/s" size={160} color="var(--color-secondary)" />
+  <div class="col-span-4 glass-panel copper-glow rounded-2xl p-6 flex items-center justify-center">
+    <DualGauge pressure={ms.pressure} maxPressure={12} flow={ms.flow} maxFlow={8} size={260} />
   </div>
 
   <!-- Shot Timer -->
