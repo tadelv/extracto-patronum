@@ -4,38 +4,54 @@
   let { data = {}, suggestions = null, onnext = () => {}, onprev = () => {} } = $props()
 
   const initTargets = data.targets
+  const roastLevel = data.roast?.level ?? ''
 
-  let dose = $state(initTargets?.dose ?? suggestions?.dose ?? 18.5)
-  let yieldTarget = $state(initTargets?.yield ?? suggestions?.yield ?? 37.0)
+  // Roast-aware defaults
+  const roastDefaults = {
+    light:        { dose: 18, yield: 45, ratio: '1:2.5', note: 'Light roasts benefit from higher ratios to develop sweetness and clarity. A longer shot extracts more of the delicate flavors.' },
+    medium:       { dose: 18, yield: 36, ratio: '1:2',   note: 'The classic 1:2 ratio is the standard starting point for medium roasts. Balanced body and sweetness.' },
+    'medium-dark': { dose: 18, yield: 36, ratio: '1:2',  note: 'Medium-dark roasts work well at 1:2 or slightly shorter. Reduce yield if the shot tastes hollow or ashy.' },
+    dark:         { dose: 18, yield: 27, ratio: '1:1.5', note: 'Dark roasts extract quickly. A shorter ratio preserves body and avoids bitterness. Consider a ristretto-style pull.' },
+  }
+
+  const defaults = roastDefaults[roastLevel] ?? roastDefaults.medium
+  const hasShotHistory = suggestions?.dose != null
+
+  // Round suggestions to nearest 0.5
+  function roundHalf(n) { return Math.round(n * 2) / 2 }
+
+  let dose = $state(initTargets?.dose ?? (hasShotHistory ? roundHalf(suggestions.dose) : defaults.dose))
+  let yieldTarget = $state(initTargets?.yield ?? (hasShotHistory ? roundHalf(suggestions.yield) : defaults.yield))
 
   let ratio = $derived(dose > 0 ? (yieldTarget / dose) : 0)
   let ratioDisplay = $derived(ratio.toFixed(1))
   let ratioLabel = $derived.by(() => {
     if (ratio < 1.7) return 'Ristretto'
     if (ratio > 2.5) return 'Lungo'
-    return 'Standard Normale'
+    return 'Normale'
   })
 
   let tip = $derived.by(() => {
-    if (ratio < 1.7) return 'A ristretto ratio produces a concentrated, intense shot with syrupy body. Best for darker roasts.'
-    if (ratio > 2.5) return 'A lungo ratio yields a lighter, more diluted extraction. Can highlight delicate floral notes in light roasts.'
-    return 'A standard ratio around 1:2 is the classic espresso benchmark. A great starting point for most beans.'
+    if (hasShotHistory) {
+      return `Based on your last ${suggestions.totalShots} shots. ${defaults.note}`
+    }
+    return defaults.note
   })
 
   function adjustDose(delta) {
-    dose = Math.round(Math.min(30, Math.max(10, dose + delta)) * 10) / 10
+    dose = Math.min(30, Math.max(10, roundHalf(dose + delta)))
   }
 
   function adjustYield(delta) {
-    yieldTarget = Math.round(Math.min(80, Math.max(15, yieldTarget + delta)) * 10) / 10
+    yieldTarget = Math.min(80, Math.max(15, roundHalf(yieldTarget + delta)))
   }
 
   function clampDose() {
-    dose = Math.round(Math.min(30, Math.max(10, dose || 18.5)) * 10) / 10
+    dose = Math.min(30, Math.max(10, roundHalf(dose || defaults.dose)))
   }
 
   function clampYield() {
-    yieldTarget = Math.round(Math.min(80, Math.max(15, yieldTarget || 37.0)) * 10) / 10
+    yieldTarget = Math.min(80, Math.max(15, roundHalf(yieldTarget || defaults.yield)))
   }
 
   function handleContinue() {
@@ -46,7 +62,16 @@
 <div class="max-w-2xl">
   <h1 class="font-headline text-3xl font-bold text-on-surface mb-2">Extraction Targets</h1>
   <p class="font-body text-on-surface-variant mb-8">
-    Set your dose and yield to define the brewing ratio.
+    {#if roastLevel}
+      Targets for <span class="text-primary font-bold">{roastLevel}</span> roast.
+      {#if hasShotHistory}
+        Pre-filled from your recent averages.
+      {:else}
+        Using recommended defaults for this roast level.
+      {/if}
+    {:else}
+      Set your dose and yield to define the brewing ratio.
+    {/if}
   </p>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -67,10 +92,10 @@
             type="number"
             bind:value={dose}
             onfocusout={clampDose}
-            step="0.1"
+            step="0.5"
             min="10"
             max="30"
-            class="w-28 bg-transparent font-headline text-5xl font-bold text-on-surface text-center outline-none border-b border-transparent focus:border-primary transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            class="w-24 bg-transparent font-headline text-5xl font-bold text-on-surface text-center outline-none border-b border-transparent focus:border-primary transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <span class="font-label text-sm text-on-surface-variant ml-1">g</span>
         </div>
@@ -102,10 +127,10 @@
             type="number"
             bind:value={yieldTarget}
             onfocusout={clampYield}
-            step="0.1"
+            step="0.5"
             min="15"
             max="80"
-            class="w-28 bg-transparent font-headline text-5xl font-bold text-on-surface text-center outline-none border-b border-transparent focus:border-primary transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            class="w-24 bg-transparent font-headline text-5xl font-bold text-on-surface text-center outline-none border-b border-transparent focus:border-primary transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <span class="font-label text-sm text-on-surface-variant ml-1">g</span>
         </div>
@@ -130,13 +155,10 @@
     </div>
   </div>
 
-  <!-- Patronum Tip -->
-  <div class="glass-panel ghost-border rounded-lg p-5 mb-8 flex gap-3">
-    <span class="text-primary text-lg shrink-0">&#9733;</span>
-    <div>
-      <p class="font-label text-xs tracking-widest uppercase text-primary mb-1">Patronum Tip</p>
-      <p class="font-body text-sm text-on-surface-variant">{tip}</p>
-    </div>
+  <!-- Tip -->
+  <div class="glass-panel ghost-border rounded-lg p-5 mb-8">
+    <p class="font-label text-xs tracking-widest uppercase text-primary mb-1">Patronum Tip</p>
+    <p class="font-body text-sm text-on-surface-variant">{tip}</p>
   </div>
 
   <div class="flex gap-4 max-w-md">
