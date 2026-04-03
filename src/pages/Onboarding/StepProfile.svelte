@@ -173,14 +173,20 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 max-h-96 overflow-y-auto pr-1">
       {#each displayProfiles as profile}
         {@const rl = roastLabel(profile)}
+        {@const isSelected = selectedId === profile.id}
         <button
-          class="text-left glass-panel ghost-border rounded-lg p-5 transition-all cursor-pointer"
-          class:ambient-glow-active={selectedId === profile.id}
-          class:ring-1={selectedId === profile.id}
-          class:ring-primary={selectedId === profile.id}
+          class="text-left rounded-lg p-5 transition-all duration-200 cursor-pointer relative overflow-hidden"
+          class:profile-card-selected={isSelected}
+          class:profile-card-default={!isSelected}
           onclick={() => selectedId = profile.id}
         >
-          <h3 class="font-headline font-bold text-on-surface mb-1 truncate">
+          {#if isSelected}
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg"></div>
+          {/if}
+          <h3 class="font-headline font-bold mb-1 truncate"
+            class:text-primary={isSelected}
+            class:text-on-surface={!isSelected}
+          >
             {profile.profile?.title ?? 'Untitled'}
           </h3>
           <div class="flex items-center gap-2 mb-2">
@@ -188,11 +194,17 @@
               <span class="font-label text-xs text-on-surface-variant">by {profile.profile.author}</span>
             {/if}
             {#if rl}
-              <span class="font-label text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm bg-surface-container-highest text-primary">{rl}</span>
+              <span class="font-label text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm text-primary"
+                class:bg-primary/15={isSelected}
+                class:bg-surface-container-highest={!isSelected}
+              >{rl}</span>
             {/if}
           </div>
           {#if profile.profile?.notes}
-            <p class="font-body text-xs text-on-surface-variant line-clamp-3">{profile.profile.notes}</p>
+            <p class="font-body text-xs line-clamp-3"
+              class:text-on-surface-variant={!isSelected}
+              class:text-on-surface={isSelected}
+            >{profile.profile.notes}</p>
           {/if}
         </button>
       {/each}
@@ -219,3 +231,23 @@
     </div>
   </div>
 </div>
+
+<style>
+  .profile-card-default {
+    background: oklch(from var(--color-surface-container-highest) l c h / 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid oklch(from var(--color-outline-variant) l c h / 0.15);
+  }
+  .profile-card-default:hover {
+    background: var(--color-surface-container-high);
+    border-color: oklch(from var(--color-outline) l c h / 0.3);
+  }
+
+  .profile-card-selected {
+    background: var(--color-surface-container-high);
+    border: 2px solid var(--color-primary);
+    box-shadow:
+      0 0 24px -4px oklch(from var(--color-primary) l c h / 0.25),
+      inset 0 1px 0 oklch(from var(--color-primary) l c h / 0.08);
+  }
+</style>
