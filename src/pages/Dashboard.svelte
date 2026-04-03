@@ -160,7 +160,7 @@
   <div class="col-span-12 grid grid-cols-5 gap-4">
     <MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" />
     <MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" />
-    <MetricCard label="Weight" value={sc.weight.toFixed(1)} unit="g" />
+    <MetricCard label="Weight" value={sc.connected ? sc.weight.toFixed(1) : '--'} unit={sc.connected ? 'g' : ''} />
     <MetricCard label="Target Yield" value={targetYield} unit="g" />
     <MetricCard label="Dose" value={targetDose} unit="g" />
   </div>
