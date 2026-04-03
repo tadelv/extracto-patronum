@@ -1,5 +1,6 @@
 <script>
   import { machineState } from '../lib/stores/machine.js'
+  import { machineInfo } from '../lib/stores/machineInfo.js'
   import { scaleState } from '../lib/stores/scale.js'
   import { workflow } from '../lib/stores/workflow.js'
   import { latestShot, loadLatestShot } from '../lib/stores/shots.js'
@@ -22,6 +23,9 @@
   let sc = $derived($scaleState)
   let wf = $derived($workflow)
   let shot = $derived($latestShot)
+
+  let info = $derived($machineInfo)
+  let hasGHC = $derived(info?.GHC ?? true)
 
   let stateLabel = $derived(ms.state?.toUpperCase() ?? 'DISCONNECTED')
   let coffeeName = $derived(wf?.context?.coffeeName ?? '')
@@ -125,6 +129,12 @@
   </div>
   <span class="font-label text-sm text-on-surface-variant truncate max-w-48">{profileTitle}</span>
 </div>
+
+{#if !hasGHC}
+  <div class="mx-6 mb-2 px-4 py-2 rounded-lg bg-surface-container-low">
+    <span class="font-label text-xs tracking-wide text-on-surface-variant">No Group Head Controller detected -- start shots from this app or another interface.</span>
+  </div>
+{/if}
 
 <!-- Main grid -->
 <div class="grid grid-cols-12 gap-4 px-6">

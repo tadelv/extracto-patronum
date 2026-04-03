@@ -1,6 +1,7 @@
 <script>
   import { link, router } from 'svelte-spa-router'
   import { machineState } from '../stores/machine.js'
+  import { machineInfo } from '../stores/machineInfo.js'
   import { scaleState } from '../stores/scale.js'
   import { scanDevices } from '../stores/devices.js'
 
@@ -21,6 +22,9 @@
     <span class="font-headline font-extrabold text-sm text-primary tracking-tight uppercase">
       Extracto Patronum
     </span>
+    {#if $machineInfo?.model}
+      <span class="font-label text-xs text-on-surface-variant tracking-wide">{$machineInfo.model}</span>
+    {/if}
 
     <div class="flex items-center gap-3 ml-4">
       <button

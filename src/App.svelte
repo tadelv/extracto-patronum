@@ -3,6 +3,7 @@
   import { onMount } from 'svelte'
   import { onboarding, loadOnboarding } from './lib/stores/onboarding.js'
   import { loadWorkflow } from './lib/stores/workflow.js'
+  import { loadMachineInfo } from './lib/stores/machineInfo.js'
   import TopBar from './lib/components/TopBar.svelte'
 
   import Dashboard from './pages/Dashboard.svelte'
@@ -27,7 +28,7 @@
   onMount(async () => {
     try {
       await Promise.race([
-        Promise.all([loadOnboarding(), loadWorkflow()]),
+        Promise.all([loadOnboarding(), loadWorkflow(), loadMachineInfo()]),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
       ])
     } catch (e) {
