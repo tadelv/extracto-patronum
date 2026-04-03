@@ -194,7 +194,7 @@
         class:opacity-50={brewLoading || !ms.isIdle}
         disabled={brewLoading || !ms.isIdle}
         onclick={startEspresso}
-      >Start Espresso</button>
+      >Start Shot</button>
     {/if}
   </div>
 
