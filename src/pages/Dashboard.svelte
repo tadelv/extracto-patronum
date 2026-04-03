@@ -130,6 +130,14 @@
     }
   }
 
+  async function tareScale() {
+    try {
+      await api.put('/scale/tare')
+    } catch (e) {
+      console.error('Failed to tare scale:', e)
+    }
+  }
+
   async function startRinse() {
     rinseLoading = true
     try {
@@ -157,10 +165,26 @@
 <div class="grid grid-cols-12 gap-4 px-6">
 
   <!-- Metrics row -->
-  <div class="col-span-12 grid grid-cols-5 gap-4">
+  <div
+    class="col-span-12 grid gap-4"
+    class:grid-cols-5={sc.connected}
+    class:grid-cols-4={!sc.connected}
+  >
     <MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" />
     <MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" />
-    <MetricCard label="Weight" value={sc.connected ? sc.weight.toFixed(1) : '--'} unit={sc.connected ? 'g' : ''} />
+    {#if sc.connected}
+      <button
+        class="bg-surface-container-low px-4 py-3 rounded-xl ghost-border flex flex-col gap-1 text-left cursor-pointer hover:bg-surface-container transition-colors click-sink"
+        onclick={tareScale}
+        title="Tap to tare"
+      >
+        <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Weight</span>
+        <div class="flex items-baseline gap-1">
+          <span class="font-label text-2xl font-bold text-on-surface">{sc.weight.toFixed(1)}</span>
+          <span class="font-label text-xs text-outline">g</span>
+        </div>
+      </button>
+    {/if}
     <MetricCard label="Target Yield" value={targetYield} unit="g" />
     <MetricCard label="Dose" value={targetDose} unit="g" />
   </div>
