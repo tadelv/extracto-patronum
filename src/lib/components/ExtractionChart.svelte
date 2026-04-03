@@ -1,6 +1,7 @@
 <script>
   import { untrack } from 'svelte'
   import { machineState } from '../stores/machine.js'
+  import { latestShotFull } from '../stores/shots.js'
 
   const PRESSURE_MAX = 12
   const FLOW_MAX = 8
@@ -8,11 +9,31 @@
   const WIDTH = 520
   const HEIGHT = 200
 
-  let dataPoints = $state([])
+  let livePoints = $state([])
   let brewStart = $state(0)
   let wasBrewing = false
+  let isLive = $state(false)
 
   let ms = $derived($machineState)
+  let fullShot = $derived($latestShotFull)
+
+  // Convert last shot's measurements to chart points
+  let historicPoints = $derived.by(() => {
+    if (!fullShot?.measurements?.length) return []
+    const start = fullShot.measurements[0]?.machine?.timestamp
+    return fullShot.measurements.map((m, i) => {
+      const time = start
+        ? (new Date(m.machine?.timestamp).getTime() - new Date(start).getTime()) / 1000
+        : i * 0.1
+      return {
+        time: Math.max(0, time),
+        pressure: m.machine?.pressure ?? 0,
+        flow: m.machine?.flow ?? 0,
+      }
+    })
+  })
+
+  let dataPoints = $derived(isLive ? livePoints : historicPoints)
   let hasData = $derived(dataPoints.length > 0)
 
   let plotW = WIDTH - PADDING.left - PADDING.right
@@ -30,14 +51,18 @@
     const flow = ms.flow
 
     if (brewing && !wasBrewing) {
-      dataPoints = []
+      livePoints = []
       brewStart = Date.now()
+      isLive = true
     }
     if (brewing) {
       const time = (Date.now() - brewStart) / 1000
       untrack(() => {
-        dataPoints.push({ time, pressure, flow })
+        livePoints.push({ time, pressure, flow })
       })
+    }
+    if (!brewing && wasBrewing) {
+      // Keep showing live data until next historic load
     }
     wasBrewing = brewing
   })

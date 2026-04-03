@@ -5,6 +5,7 @@ export const shots = writable([])
 export const shotsLoading = writable(false)
 export const shotsTotal = writable(0)
 export const latestShot = writable(null)
+export const latestShotFull = writable(null)
 
 let currentOffset = 0
 const PAGE_SIZE = 20
@@ -56,6 +57,11 @@ export async function loadLatestShot() {
   try {
     const shot = await api.get('/shots/latest')
     latestShot.set(shot)
+    // Fetch full record with measurements for the extraction curve
+    if (shot?.id) {
+      const full = await api.get(`/shots/${shot.id}`)
+      latestShotFull.set(full)
+    }
   } catch (e) {
     console.error('Failed to load latest shot:', e)
   }
