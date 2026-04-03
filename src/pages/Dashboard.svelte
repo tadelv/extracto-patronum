@@ -156,6 +156,15 @@
 <!-- Main grid -->
 <div class="grid grid-cols-12 gap-4 px-6">
 
+  <!-- Metrics row -->
+  <div class="col-span-12 grid grid-cols-5 gap-4">
+    <MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" />
+    <MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" />
+    <MetricCard label="Weight" value={sc.weight.toFixed(1)} unit="g" />
+    <MetricCard label="Target Yield" value={targetYield} unit="g" />
+    <MetricCard label="Dose" value={targetDose} unit="g" />
+  </div>
+
   <!-- Dual Gauges -->
   <div class="col-span-4 glass-panel copper-glow rounded-2xl p-6 flex items-center justify-center">
     <DualGauge pressure={ms.pressure} maxPressure={12} flow={ms.flow} maxFlow={8} size={260} />
@@ -241,15 +250,6 @@
         onclick={startRinse}
       >Rinse</button>
     </div>
-  </div>
-
-  <!-- Metrics row -->
-  <div class="col-span-12 grid grid-cols-5 gap-4">
-    <MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" />
-    <MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" />
-    <MetricCard label="Weight" value={sc.weight.toFixed(1)} unit="g" />
-    <MetricCard label="Target Yield" value={targetYield} unit="g" />
-    <MetricCard label="Dose" value={targetDose} unit="g" />
   </div>
 
   <!-- Bottom row -->
