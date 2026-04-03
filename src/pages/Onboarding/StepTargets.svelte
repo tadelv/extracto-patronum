@@ -30,6 +30,14 @@
     yieldTarget = Math.round(Math.min(80, Math.max(15, yieldTarget + delta)) * 10) / 10
   }
 
+  function clampDose() {
+    dose = Math.round(Math.min(30, Math.max(10, dose || 18.5)) * 10) / 10
+  }
+
+  function clampYield() {
+    yieldTarget = Math.round(Math.min(80, Math.max(15, yieldTarget || 37.0)) * 10) / 10
+  }
+
   function handleContinue() {
     onnext({ targets: { dose, yield: yieldTarget } })
   }
@@ -54,8 +62,16 @@
         >
           &minus;
         </button>
-        <div class="text-center">
-          <span class="font-headline text-5xl font-bold text-on-surface">{dose.toFixed(1)}</span>
+        <div class="text-center flex items-baseline">
+          <input
+            type="number"
+            bind:value={dose}
+            onfocusout={clampDose}
+            step="0.1"
+            min="10"
+            max="30"
+            class="w-28 bg-transparent font-headline text-5xl font-bold text-on-surface text-center outline-none border-b border-transparent focus:border-primary transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          />
           <span class="font-label text-sm text-on-surface-variant ml-1">g</span>
         </div>
         <button
@@ -81,8 +97,16 @@
         >
           &minus;
         </button>
-        <div class="text-center">
-          <span class="font-headline text-5xl font-bold text-on-surface">{yieldTarget.toFixed(1)}</span>
+        <div class="text-center flex items-baseline">
+          <input
+            type="number"
+            bind:value={yieldTarget}
+            onfocusout={clampYield}
+            step="0.1"
+            min="15"
+            max="80"
+            class="w-28 bg-transparent font-headline text-5xl font-bold text-on-surface text-center outline-none border-b border-transparent focus:border-primary transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          />
           <span class="font-label text-sm text-on-surface-variant ml-1">g</span>
         </div>
         <button
