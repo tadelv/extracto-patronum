@@ -4,10 +4,10 @@
   let { data = {}, suggestions = null, onnext = () => {} } = $props()
 
   const roastLevels = [
-    { id: 'light', label: 'Light', temp: '180°C', height: 'h-12', color: 'bg-amber-300' },
-    { id: 'medium', label: 'Medium', temp: '205°C', height: 'h-20', color: 'bg-amber-500' },
-    { id: 'medium-dark', label: 'Med-Dark', temp: '215°C', height: 'h-28', color: 'bg-amber-700' },
-    { id: 'dark', label: 'Dark', temp: '225°C', height: 'h-36', color: 'bg-amber-900' },
+    { id: 'light', label: 'Light', height: 'h-12', color: 'bg-amber-300' },
+    { id: 'medium', label: 'Medium', height: 'h-20', color: 'bg-amber-500' },
+    { id: 'medium-dark', label: 'Med-Dark', height: 'h-28', color: 'bg-amber-700' },
+    { id: 'dark', label: 'Dark', height: 'h-36', color: 'bg-amber-900' },
   ]
 
   const processingMethods = ['Washed', 'Natural', 'Honey', 'Anaerobic']
@@ -68,7 +68,14 @@
 
   <!-- Roast Spectrum Selector -->
   <div class="copper-glow ghost-border rounded-lg p-6 mb-8">
-    <p class="font-label text-xs tracking-widest uppercase text-primary mb-6">Roast Spectrum</p>
+    <p class="font-label text-xs tracking-widest uppercase text-primary mb-2">Roast Spectrum</p>
+    <p class="font-body text-sm text-on-surface-variant mb-6">
+      {#if !selectedLevel}
+        Select a roast level to continue. This filters the profile recommendations in the next step.
+      {:else}
+        Selected: <span class="text-primary font-bold">{roastLevels.find(r => r.id === selectedLevel)?.label}</span>
+      {/if}
+    </p>
     <div class="flex items-end gap-4 justify-center">
       {#each roastLevels as roast}
         <button
@@ -83,7 +90,6 @@
             class:opacity-50={selectedLevel !== roast.id}
           ></div>
           <span class="font-label text-xs font-bold tracking-wide text-on-surface">{roast.label}</span>
-          <span class="font-label text-[10px] text-on-surface-variant">{roast.temp}</span>
         </button>
       {/each}
     </div>
