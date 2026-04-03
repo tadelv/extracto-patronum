@@ -4,6 +4,7 @@
   import { scaleState } from '../lib/stores/scale.js'
   import { workflow } from '../lib/stores/workflow.js'
   import { latestShot, loadLatestShot } from '../lib/stores/shots.js'
+  import { shotSettings } from '../lib/stores/shotSettings.js'
   import { api } from '../lib/api/index.js'
   import DualGauge from '../lib/components/DualGauge.svelte'
   import MetricCard from '../lib/components/MetricCard.svelte'
@@ -26,6 +27,7 @@
   let sc = $derived($scaleState)
   let wf = $derived($workflow)
   let shot = $derived($latestShot)
+  let currentSettings = $derived($shotSettings)
 
   let info = $derived($machineInfo)
   let hasGHC = $derived(info?.GHC ?? true)
@@ -106,10 +108,22 @@
     steamTemp = Math.max(100, Math.min(165, steamTemp + delta))
   }
 
+  // Sync steam temp from machine settings on first receive
+  let steamTempSynced = false
+  $effect(() => {
+    if (currentSettings && !steamTempSynced) {
+      steamTemp = currentSettings.targetSteamTemp
+      steamTempSynced = true
+    }
+  })
+
   async function startSteam() {
     steamLoading = true
     try {
-      await api.post('/machine/shotSettings', { targetSteamTemp: steamTemp })
+      await api.post('/machine/shotSettings', {
+        ...currentSettings,
+        targetSteamTemp: steamTemp,
+      })
       await api.put('/machine/state/steam')
     } catch (e) {
       console.error('Failed to start steam:', e)
