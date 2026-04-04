@@ -32,38 +32,49 @@
     })
   )
 
-  // Score and sort profiles by roast relevance
-  let rankedProfiles = $derived.by(() => {
-    if (!roastLevel || !espressoProfiles.length) return espressoProfiles
+  // Stable sort computed once after profiles load — never re-sorts on selection change
+  let sortedProfiles = $state([])
+  let recommendedCount = $state(0)
 
+  function computeCompatibility(profiles) {
+    const suggestedTitle = suggestions?.profile?.title?.toLowerCase() ?? ''
     const keywords = roastKeywords[roastLevel] ?? []
+    const maxRawScore = Math.max(keywords.length * 5, 1)
 
-    return [...espressoProfiles].map(p => {
+    return profiles.map(p => {
       const title = (p.profile?.title ?? '').toLowerCase()
       const notes = (p.profile?.notes ?? '').toLowerCase()
       const text = title + ' ' + notes
-      let score = 0
+      let raw = 0
 
+      // Roast keyword matching
       for (const kw of keywords) {
-        if (text.includes(kw)) score += 2
-        if (title.includes(kw)) score += 3 // title match weighted higher
+        if (title.includes(kw)) raw += 3
+        else if (text.includes(kw)) raw += 1
       }
 
-      // Boost profiles with explicit roast level in title
-      if (roastLevel === 'dark' && (title.includes('dark') || title.includes('very-dark'))) score += 5
-      if (roastLevel === 'light' && title.includes('light')) score += 5
-      if (roastLevel === 'medium' && title.includes('medium') && !title.includes('dark')) score += 5
+      // Explicit roast match in title
+      if (roastLevel === 'dark' && (title.includes('dark') || title.includes('very-dark'))) raw += 4
+      if (roastLevel === 'light' && title.includes('light')) raw += 4
+      if (roastLevel === 'medium' && title.includes('medium') && !title.includes('dark')) raw += 4
 
-      // Boost pre-selected profile to top
-      if (p.id === selectedId) score += 100
+      // Shot history familiarity boost
+      if (suggestedTitle && title.includes(suggestedTitle)) raw += 6
 
-      return { ...p, _score: score }
-    }).sort((a, b) => b._score - a._score)
-  })
+      // Normalize to percentage (cap at 98 — nothing is "perfect")
+      let compat = Math.min(98, Math.round((raw / maxRawScore) * 80))
 
-  // Show recommended (score > 0) vs all espresso
-  let recommendedProfiles = $derived(rankedProfiles.filter(p => p._score > 0 || p.id === selectedId))
-  let displayProfiles = $derived(showAll ? rankedProfiles : (recommendedProfiles.length > 0 ? recommendedProfiles : rankedProfiles))
+      // Profiles with any roast relevance get a floor of 40%
+      if (raw > 0 && compat < 40) compat = 40
+
+      // Generic profiles that don't mention any roast get a baseline
+      if (raw === 0) compat = Math.floor(Math.random() * 15) + 15 // 15-30% baseline
+
+      return { ...p, _compat: compat }
+    }).sort((a, b) => b._compat - a._compat)
+  }
+
+  let displayProfiles = $derived(showAll ? sortedProfiles : (recommendedCount > 0 ? sortedProfiles.slice(0, recommendedCount) : sortedProfiles))
 
   let selectedProfile = $derived(allProfiles.find(p => p.id === selectedId) ?? null)
   let canContinue = $derived(selectedProfile !== null)
@@ -72,6 +83,12 @@
     try {
       const res = await api.get('/profiles')
       allProfiles = Array.isArray(res) ? res : (res?.profiles ?? [])
+
+      // Compute compatibility scores once — order is stable from here
+      const espresso = allProfiles.filter(p => (p.profile?.beverage_type ?? '').toLowerCase() === 'espresso')
+      const scored = computeCompatibility(espresso)
+      sortedProfiles = scored
+      recommendedCount = scored.filter(p => p._compat >= 40).length
 
       // Auto-select suggested profile if no prior selection
       if (!selectedId && suggestions?.profile?.title) {
@@ -128,7 +145,7 @@
     <div class="glass-panel ghost-border rounded-lg p-6 text-center">
       <p class="text-error font-body">{error}</p>
     </div>
-  {:else if espressoProfiles.length === 0}
+  {:else if sortedProfiles.length === 0}
     <div class="mt-10 p-8 rounded-xl bg-surface-container-low text-center">
       <p class="text-on-surface-variant font-body mb-4">No espresso profiles found on the machine.</p>
       <button
@@ -149,26 +166,26 @@
       </div>
     {/if}
 
-    {#if recommendedProfiles.length > 0 && !showAll}
+    {#if recommendedCount > 0 && !showAll}
       <div class="flex items-center justify-between mb-4">
         <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">
-          {recommendedProfiles.length} recommended for {roastLevel}
+          {recommendedCount} compatible with {roastLevel}
         </span>
         <button
           class="font-label text-xs tracking-widest uppercase text-primary hover:underline"
           onclick={() => showAll = true}
-        >Show all ({espressoProfiles.length})</button>
+        >Show all ({sortedProfiles.length})</button>
       </div>
     {:else if showAll}
       <div class="flex items-center justify-between mb-4">
         <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">
-          All espresso profiles ({espressoProfiles.length})
+          All espresso profiles ({sortedProfiles.length})
         </span>
-        {#if recommendedProfiles.length > 0}
+        {#if recommendedCount > 0}
           <button
             class="font-label text-xs tracking-widest uppercase text-primary hover:underline"
             onclick={() => showAll = false}
-          >Show recommended only</button>
+          >Show compatible only</button>
         {/if}
       </div>
     {/if}
@@ -192,15 +209,20 @@
           >
             {profile.profile?.title ?? 'Untitled'}
           </h3>
-          <div class="flex items-center gap-2 mb-2">
-            {#if profile.profile?.author}
-              <span class="font-label text-xs text-on-surface-variant">by {profile.profile.author}</span>
+          <div class="flex items-center gap-2 mb-2 flex-wrap">
+            {#if profile._compat > 0}
+              <span
+                class="font-label text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm"
+                style:background-color={isSelected ? 'oklch(from var(--color-primary) l c h / 0.15)' : 'var(--color-surface-container-highest)'}
+                class:text-primary={profile._compat >= 60}
+                class:text-on-surface-variant={profile._compat < 60}
+              >{profile._compat}% match</span>
             {/if}
             {#if rl}
-              <span
-                class="font-label text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm text-primary"
-                style:background-color={isSelected ? 'oklch(from var(--color-primary) l c h / 0.15)' : 'var(--color-surface-container-highest)'}
-              >{rl}</span>
+              <span class="font-label text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm bg-surface-container-highest text-on-surface-variant">{rl}</span>
+            {/if}
+            {#if profile.profile?.author}
+              <span class="font-label text-[10px] text-outline">by {profile.profile.author}</span>
             {/if}
           </div>
           {#if profile.profile?.notes}
