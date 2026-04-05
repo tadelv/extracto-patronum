@@ -22,9 +22,6 @@
     <span class="font-headline font-extrabold text-sm text-primary tracking-tight uppercase">
       Extracto Patronum
     </span>
-    {#if $machineInfo?.model}
-      <span class="font-label text-xs text-on-surface-variant tracking-wide">{$machineInfo.model}</span>
-    {/if}
 
     <div class="flex items-center gap-3 ml-4">
       <button
