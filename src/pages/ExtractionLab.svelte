@@ -223,10 +223,8 @@
             {#each profiles as p}
               {@const isActive = p.id === currentProfileId}
               <button
-                class="text-left px-3 py-2.5 rounded-lg transition-all"
-                class:bg-primary/10={isActive}
-                class:text-primary={isActive}
-                class:hover:bg-surface-container-high={!isActive}
+                class="text-left px-3 py-2.5 rounded-lg transition-all hover:bg-surface-container-high"
+                style:background-color={isActive ? 'oklch(from var(--color-primary) l c h / 0.1)' : undefined}
                 onclick={() => { selectProfile(p); showProfilePicker = false }}
               >
                 <span class="font-label text-sm font-bold block truncate"
