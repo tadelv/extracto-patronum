@@ -1,10 +1,9 @@
 <script>
   import { machineState } from '../lib/stores/machine.js'
   import { machineInfo } from '../lib/stores/machineInfo.js'
-  import { workflow } from '../lib/stores/workflow.js'
+  import { workflow, updateWorkflow } from '../lib/stores/workflow.js'
   import { latestShot, loadLatestShot } from '../lib/stores/shots.js'
   import { waterLevel } from '../lib/stores/waterLevel.js'
-  import { updateWorkflow } from '../lib/stores/workflow.js'
   import { api } from '../lib/api/index.js'
   import DualGauge from '../lib/components/DualGauge.svelte'
   import MetricCard from '../lib/components/MetricCard.svelte'
