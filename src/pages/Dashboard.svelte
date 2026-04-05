@@ -5,6 +5,7 @@
   import { workflow } from '../lib/stores/workflow.js'
   import { latestShot, loadLatestShot } from '../lib/stores/shots.js'
   import { shotSettings } from '../lib/stores/shotSettings.js'
+  import { waterLevel } from '../lib/stores/waterLevel.js'
   import { api } from '../lib/api/index.js'
   import DualGauge from '../lib/components/DualGauge.svelte'
   import MetricCard from '../lib/components/MetricCard.svelte'
@@ -28,6 +29,7 @@
   let wf = $derived($workflow)
   let shot = $derived($latestShot)
   let currentSettings = $derived($shotSettings)
+  let water = $derived($waterLevel)
 
   let info = $derived($machineInfo)
   let hasGHC = $derived(info?.GHC ?? true)
@@ -226,28 +228,46 @@
 <div class="grid grid-cols-12 gap-4 px-6">
 
   <!-- Metrics row -->
-  <div
-    class="col-span-12 grid gap-4"
-    class:grid-cols-5={sc.connected}
-    class:grid-cols-4={!sc.connected}
-  >
-    <MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" href="/lab" />
-    <MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" href="/lab" />
+  <div class="col-span-12 flex gap-4">
+    <div class="flex-1"><MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
+    <div class="flex-1"><MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
     {#if sc.connected}
-      <button
-        class="bg-surface-container-low px-4 py-3 rounded-xl ghost-border flex flex-col gap-1 text-left cursor-pointer hover:bg-surface-container transition-colors click-sink"
-        onclick={tareScale}
-        title="Tap to tare"
-      >
-        <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Weight</span>
-        <div class="flex items-baseline gap-1">
-          <span class="font-label text-2xl font-bold text-on-surface">{sc.weight.toFixed(1)}</span>
-          <span class="font-label text-xs text-outline">g</span>
-        </div>
-      </button>
+      <div class="flex-1">
+        <button
+          class="w-full bg-surface-container-low px-4 py-3 rounded-xl ghost-border flex flex-col gap-1 text-left cursor-pointer hover:bg-surface-container transition-colors click-sink"
+          onclick={tareScale}
+          title="Tap to tare"
+        >
+          <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Weight</span>
+          <div class="flex items-baseline gap-1">
+            <span class="font-label text-2xl font-bold text-on-surface">{sc.weight.toFixed(1)}</span>
+            <span class="font-label text-xs text-outline">g</span>
+          </div>
+        </button>
+      </div>
     {/if}
-    <MetricCard label="Target Yield" value={targetYield} unit="g" href="/lab" />
-    <MetricCard label="Dose" value={targetDose} unit="g" href="/lab" />
+    <div class="flex-1"><MetricCard label="Target Yield" value={targetYield} unit="g" href="/lab" /></div>
+    <div class="flex-1"><MetricCard label="Dose" value={targetDose} unit="g" href="/lab" /></div>
+    {#if water.connected}
+      <div class="flex-1">
+        <div
+          class="bg-surface-container-low px-4 py-3 rounded-xl ghost-border flex flex-col gap-1"
+          class:text-error={water.needsRefill}
+        >
+          <span class="font-label text-xs tracking-widest uppercase"
+            class:text-on-surface-variant={!water.needsRefill}
+            class:text-error={water.needsRefill}
+          >Water</span>
+          <div class="flex items-baseline gap-1">
+            <span class="font-label text-2xl font-bold"
+              class:text-on-surface={!water.needsRefill}
+              class:text-error={water.needsRefill}
+            >{water.percent}</span>
+            <span class="font-label text-xs text-outline">%</span>
+          </div>
+        </div>
+      </div>
+    {/if}
   </div>
 
   <!-- Dual Gauges -->
