@@ -139,9 +139,12 @@
   async function applySteamSettings() {
     steamLoading = true
     try {
+      console.log('[Extracto] Applying steam settings:', buildSteamSettings())
+      console.log('[Extracto] Current workflow:', wf)
       await updateWorkflow({ steamSettings: buildSteamSettings() })
+      console.log('[Extracto] Steam settings applied successfully')
     } catch (e) {
-      console.error('Failed to apply steam settings:', e)
+      console.error('[Extracto] Failed to apply steam settings:', e)
     } finally {
       steamLoading = false
     }
@@ -387,21 +390,29 @@
     {/if}
 
     <!-- Buttons -->
-    <div class="flex gap-3 mt-auto">
-      <div class="flex-1">
-        {#if ms.isSteaming}
+    <div class="flex gap-2 mt-auto">
+      {#if ms.isSteaming}
+        <div class="flex-1">
           <button
             class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
             class:opacity-50={steamLoading}
             disabled={steamLoading}
             onclick={stopSteam}
           >Stop Steam</button>
-        {:else if hasGHC}
+        </div>
+      {:else}
+        <div class="flex-1">
           <GradientButton label="Apply" disabled={steamLoading || !steamEnabled} onclick={applySteamSettings} />
-        {:else}
-          <GradientButton label="Start Steam" disabled={steamLoading || !steamEnabled || !ms.isIdle} onclick={startSteam} />
+        </div>
+        {#if !hasGHC}
+          <button
+            class="px-4 py-3 rounded-sm bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink transition-opacity text-sm"
+            class:opacity-50={steamLoading || !steamEnabled || !ms.isIdle}
+            disabled={steamLoading || !steamEnabled || !ms.isIdle}
+            onclick={startSteam}
+          >Start</button>
         {/if}
-      </div>
+      {/if}
       <button
         class="px-4 py-3 rounded-sm bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink transition-opacity text-sm"
         class:opacity-50={rinseLoading}
