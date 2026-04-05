@@ -8,7 +8,7 @@
   const navItems = [
     { path: '/dashboard', label: 'Dashboard' },
     { path: '/lab', label: 'Customizer' },
-    { path: '/maintenance', label: 'Maintenance' },
+    // { path: '/maintenance', label: 'Maintenance' }, // TODO: deferred
     { path: '/history', label: 'History' },
   ]
 
