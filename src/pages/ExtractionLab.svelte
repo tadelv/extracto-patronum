@@ -2,7 +2,6 @@
   import { workflow, updateWorkflow } from '../lib/stores/workflow.js'
   import { api } from '../lib/api/index.js'
   import { onMount } from 'svelte'
-  import MetricCard from '../lib/components/MetricCard.svelte'
 
   let wf = $derived($workflow)
 
@@ -11,6 +10,9 @@
   let yieldTarget = $state(36)
   let grinderSetting = $state('')
   let temperature = $state(93)
+  let preinfusionTime = $state(10)
+  let peakPressure = $state(9)
+  let extractionFlow = $state(2)
 
   // --- Profile data ---
   let profiles = $state([])
@@ -18,6 +20,81 @@
   let currentProfileId = $derived(wf?.profile?.id ?? null)
   let currentProfileTitle = $derived(wf?.profile?.title ?? 'No profile')
   let profileSteps = $derived(wf?.profile?.steps ?? [])
+
+  // --- Profile type analysis ---
+  // Identify preinfusion steps (early steps before the main ramp/extraction)
+  // and determine if the profile is pressure-dominant or flow-dominant
+  let profileAnalysis = $derived.by(() => {
+    const steps = wf?.profile?.steps ?? []
+    if (steps.length === 0) return { type: 'unknown', preinfusionIndices: [], extractionIndices: [] }
+
+    // Find where preinfusion ends and extraction begins
+    // Heuristic: preinfusion steps are early steps with low pressure or fill/infuse/soak/bloom in name
+    // Extraction steps come after and have the main pressure/flow targets
+    const preinfusionNames = ['fill', 'prefill', 'preinfusion', 'infuse', 'soak', 'bloom', 'compress', 'drip', 'pause', 'dynamic bloom']
+    const preinfusionIndices = []
+    const extractionIndices = []
+    let foundExtraction = false
+
+    for (let i = 0; i < steps.length; i++) {
+      const name = (steps[i].name ?? '').toLowerCase()
+      const isPreinfusion = !foundExtraction && (
+        preinfusionNames.some(n => name.includes(n)) ||
+        (i === 0 && steps.length > 2) // first step of multi-step is usually preinfusion
+      )
+
+      if (isPreinfusion) {
+        preinfusionIndices.push(i)
+      } else {
+        foundExtraction = true
+        extractionIndices.push(i)
+      }
+    }
+
+    // If we didn't identify any preinfusion, treat step 0 as preinfusion for simple profiles
+    if (preinfusionIndices.length === 0 && steps.length > 1) {
+      preinfusionIndices.push(0)
+      extractionIndices.splice(0, 0) // remove 0 from extraction if it was there
+    }
+
+    // Determine profile type from extraction steps' pump mode
+    let pressureCount = 0
+    let flowCount = 0
+    for (const i of extractionIndices) {
+      const pump = steps[i]?.pump ?? ''
+      if (pump === 'pressure') pressureCount++
+      else if (pump === 'flow') flowCount++
+    }
+
+    const type = flowCount > pressureCount ? 'flow' : 'pressure'
+
+    // Find the peak value in extraction steps
+    let peakPressureValue = 0
+    let peakFlowValue = 0
+    for (const i of extractionIndices) {
+      const p = steps[i]?.pressure ?? 0
+      const f = steps[i]?.flow ?? 0
+      if (p > peakPressureValue) peakPressureValue = p
+      if (f > peakFlowValue) peakFlowValue = f
+    }
+
+    // Total preinfusion time
+    let totalPreinfusionTime = 0
+    for (const i of preinfusionIndices) {
+      totalPreinfusionTime += steps[i]?.seconds ?? 0
+    }
+
+    return {
+      type,
+      preinfusionIndices,
+      extractionIndices,
+      peakPressure: peakPressureValue,
+      peakFlow: peakFlowValue,
+      totalPreinfusionTime,
+    }
+  })
+
+  let isFlowProfile = $derived(profileAnalysis.type === 'flow')
 
   // --- Sync from workflow on load ---
   let synced = false
@@ -27,9 +104,76 @@
       yieldTarget = wf.context?.targetYield ?? 36
       grinderSetting = wf.context?.grinderSetting ?? ''
       temperature = wf.profile?.steps?.[0]?.temperature || 93
+      preinfusionTime = profileAnalysis.totalPreinfusionTime || 10
+      peakPressure = profileAnalysis.peakPressure || 9
+      extractionFlow = profileAnalysis.peakFlow || 2
       synced = true
     }
   })
+
+  // Re-sync profile-specific values when profile changes
+  let lastProfileTitle = ''
+  $effect(() => {
+    const title = wf?.profile?.title ?? ''
+    if (synced && title && title !== lastProfileTitle) {
+      lastProfileTitle = title
+      temperature = wf.profile?.steps?.[0]?.temperature || 93
+      preinfusionTime = profileAnalysis.totalPreinfusionTime || 10
+      peakPressure = profileAnalysis.peakPressure || 9
+      extractionFlow = profileAnalysis.peakFlow || 2
+    }
+  })
+
+  // --- Build adjusted steps ---
+  function buildAdjustedSteps() {
+    const steps = wf?.profile?.steps ?? []
+    if (steps.length === 0) return steps
+
+    const analysis = profileAnalysis
+    const originalFirstTemp = steps[0]?.temperature ?? 93
+    const tempDelta = temperature - originalFirstTemp
+
+    // Calculate preinfusion time scale factor
+    const originalPreTime = analysis.totalPreinfusionTime || 1
+    const preTimeScale = preinfusionTime / originalPreTime
+
+    // Calculate peak pressure/flow scale factor
+    const originalPeakPressure = analysis.peakPressure || 1
+    const pressureScale = peakPressure / originalPeakPressure
+
+    const originalPeakFlow = analysis.peakFlow || 1
+    const flowScale = extractionFlow / originalPeakFlow
+
+    return steps.map((step, i) => {
+      const adjusted = { ...step }
+
+      // Temperature: shift all steps by delta
+      if (adjusted.temperature != null) {
+        adjusted.temperature = Math.round((adjusted.temperature + tempDelta) * 10) / 10
+      }
+
+      // Preinfusion time: scale preinfusion step durations
+      if (analysis.preinfusionIndices.includes(i) && adjusted.seconds != null) {
+        adjusted.seconds = Math.round(adjusted.seconds * preTimeScale * 10) / 10
+      }
+
+      // Peak pressure: scale extraction step pressures proportionally
+      if (analysis.extractionIndices.includes(i) && analysis.type === 'pressure') {
+        if (adjusted.pressure != null && adjusted.pressure > 0) {
+          adjusted.pressure = Math.round(adjusted.pressure * pressureScale * 10) / 10
+        }
+      }
+
+      // Extraction flow: scale extraction step flows proportionally
+      if (analysis.extractionIndices.includes(i) && analysis.type === 'flow') {
+        if (adjusted.flow != null && adjusted.flow > 0) {
+          adjusted.flow = Math.round(adjusted.flow * flowScale * 10) / 10
+        }
+      }
+
+      return adjusted
+    })
+  }
 
   // --- Auto-save with debounce ---
   let saveTimer = null
@@ -37,15 +181,6 @@
     clearTimeout(saveTimer)
     saveTimer = setTimeout(async () => {
       try {
-        // Adjust all step temperatures relative to first step delta
-        const currentSteps = wf?.profile?.steps ?? []
-        const originalFirstTemp = currentSteps[0]?.temperature ?? 93
-        const delta = temperature - originalFirstTemp
-        const adjustedSteps = currentSteps.map(step => ({
-          ...step,
-          temperature: step.temperature != null ? step.temperature + delta : step.temperature,
-        }))
-
         await updateWorkflow({
           context: {
             targetDoseWeight: dose,
@@ -54,7 +189,7 @@
           },
           profile: {
             ...(wf?.profile ?? {}),
-            steps: adjustedSteps,
+            steps: buildAdjustedSteps(),
           },
         })
       } catch (e) {
@@ -64,7 +199,7 @@
   }
 
   $effect(() => {
-    const _ = [dose, yieldTarget, grinderSetting, temperature]
+    const _ = [dose, yieldTarget, grinderSetting, temperature, preinfusionTime, peakPressure, extractionFlow]
     if (synced) debounceSave()
   })
 
@@ -88,9 +223,8 @@
 
   async function selectProfile(profileRecord) {
     try {
+      lastProfileTitle = '' // force re-sync
       await updateWorkflow({ profile: profileRecord.profile })
-      // Re-sync temperature from new profile
-      temperature = profileRecord.profile?.steps?.[0]?.temperature || 93
     } catch (e) {
       console.error('Failed to switch profile:', e)
     }
@@ -100,15 +234,12 @@
   let ratio = $derived(dose > 0 ? (yieldTarget / dose) : 0)
   let ratioDisplay = $derived(ratio.toFixed(1))
 
-  function adjustDose(delta) {
-    dose = Math.max(10, Math.min(30, Math.round((dose + delta) * 2) / 2))
-  }
-  function adjustYield(delta) {
-    yieldTarget = Math.max(15, Math.min(80, Math.round((yieldTarget + delta) * 2) / 2))
-  }
-  function adjustTemp(delta) {
-    temperature = Math.max(70, Math.min(100, Math.round((temperature + delta) * 10) / 10))
-  }
+  function adjustDose(delta) { dose = Math.max(10, Math.min(30, Math.round((dose + delta) * 2) / 2)) }
+  function adjustYield(delta) { yieldTarget = Math.max(15, Math.min(80, Math.round((yieldTarget + delta) * 2) / 2)) }
+  function adjustTemp(delta) { temperature = Math.max(70, Math.min(100, Math.round((temperature + delta) * 10) / 10)) }
+  function adjustPreinfusion(delta) { preinfusionTime = Math.max(2, Math.min(60, Math.round((preinfusionTime + delta) * 10) / 10)) }
+  function adjustPeakPressure(delta) { peakPressure = Math.max(3, Math.min(12, Math.round((peakPressure + delta) * 10) / 10)) }
+  function adjustExtractionFlow(delta) { extractionFlow = Math.max(0.5, Math.min(6, Math.round((extractionFlow + delta) * 10) / 10)) }
 
   let showProfilePicker = $state(false)
 </script>
@@ -127,38 +258,25 @@
 
       <!-- Dose & Yield row -->
       <div class="grid grid-cols-2 gap-4">
-        <!-- Dose -->
         <div class="glass-panel ghost-border rounded-xl p-5">
           <span class="font-label text-xs tracking-widest uppercase text-primary">Dose In</span>
           <div class="flex items-center justify-between mt-3">
             <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustDose(-0.5)}>&minus;</button>
             <div class="flex items-baseline">
-              <input
-                type="number"
-                bind:value={dose}
-                step="0.5"
-                min="10" max="30"
-                class="w-16 bg-transparent font-label text-4xl font-bold text-on-surface text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              />
+              <input type="number" bind:value={dose} step="0.5" min="10" max="30"
+                class="w-16 bg-transparent font-label text-4xl font-bold text-on-surface text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
               <span class="font-label text-sm text-outline">g</span>
             </div>
             <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustDose(0.5)}>+</button>
           </div>
         </div>
-
-        <!-- Yield -->
         <div class="glass-panel ghost-border rounded-xl p-5">
           <span class="font-label text-xs tracking-widest uppercase text-primary">Yield Out</span>
           <div class="flex items-center justify-between mt-3">
             <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustYield(-0.5)}>&minus;</button>
             <div class="flex items-baseline">
-              <input
-                type="number"
-                bind:value={yieldTarget}
-                step="0.5"
-                min="15" max="80"
-                class="w-16 bg-transparent font-label text-4xl font-bold text-on-surface text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              />
+              <input type="number" bind:value={yieldTarget} step="0.5" min="15" max="80"
+                class="w-16 bg-transparent font-label text-4xl font-bold text-on-surface text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
               <span class="font-label text-sm text-outline">g</span>
             </div>
             <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustYield(0.5)}>+</button>
@@ -173,7 +291,7 @@
         <div class="flex-1 h-px bg-outline-variant/20"></div>
       </div>
 
-      <!-- Temperature -->
+      <!-- Brew Temperature -->
       <div class="glass-panel ghost-border rounded-xl p-5">
         <span class="font-label text-xs tracking-widest uppercase text-primary">Brew Temperature</span>
         <div class="flex items-center justify-between mt-3">
@@ -183,16 +301,49 @@
         </div>
       </div>
 
+      <!-- Preinfusion Time + Peak Pressure/Flow row -->
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Preinfusion Time -->
+        <div class="glass-panel ghost-border rounded-xl p-5">
+          <span class="font-label text-xs tracking-widest uppercase text-primary">Preinfusion</span>
+          <p class="font-body text-[10px] text-on-surface-variant mt-0.5">Total soak time before extraction</p>
+          <div class="flex items-center justify-between mt-3">
+            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPreinfusion(-1)}>&minus;</button>
+            <span class="font-label text-3xl font-bold text-on-surface tabular-nums">{preinfusionTime.toFixed(0)}<span class="text-sm text-outline ml-1">s</span></span>
+            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPreinfusion(1)}>+</button>
+          </div>
+        </div>
+
+        <!-- Peak Pressure or Extraction Flow (based on profile type) -->
+        {#if isFlowProfile}
+          <div class="glass-panel ghost-border rounded-xl p-5">
+            <span class="font-label text-xs tracking-widest uppercase" style="color: #fef3c7;">Extraction Flow</span>
+            <p class="font-body text-[10px] text-on-surface-variant mt-0.5">Target flow during extraction</p>
+            <div class="flex items-center justify-between mt-3">
+              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustExtractionFlow(-0.1)}>&minus;</button>
+              <span class="font-label text-3xl font-bold tabular-nums" style="color: #fef3c7;">{extractionFlow.toFixed(1)}<span class="text-sm text-outline ml-1">ml/s</span></span>
+              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustExtractionFlow(0.1)}>+</button>
+            </div>
+          </div>
+        {:else}
+          <div class="glass-panel ghost-border rounded-xl p-5">
+            <span class="font-label text-xs tracking-widest uppercase text-primary">Peak Pressure</span>
+            <p class="font-body text-[10px] text-on-surface-variant mt-0.5">Max pressure during extraction</p>
+            <div class="flex items-center justify-between mt-3">
+              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPeakPressure(-0.5)}>&minus;</button>
+              <span class="font-label text-3xl font-bold text-on-surface tabular-nums">{peakPressure.toFixed(1)}<span class="text-sm text-outline ml-1">bar</span></span>
+              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPeakPressure(0.5)}>+</button>
+            </div>
+          </div>
+        {/if}
+      </div>
+
       <!-- Grind Setting -->
       <div class="glass-panel ghost-border rounded-xl p-5">
         <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Grind Setting</span>
-        <input
-          type="text"
-          bind:value={grinderSetting}
-          placeholder="e.g. 2.5 or Fine"
+        <input type="text" bind:value={grinderSetting} placeholder="e.g. 2.5 or Fine"
           class="mt-3 w-full bg-transparent border-b border-outline-variant font-label text-xl font-bold text-on-surface
-                 placeholder:text-outline focus:border-primary focus:outline-none pb-2 transition-colors"
-        />
+                 placeholder:text-outline focus:border-primary focus:outline-none pb-2 transition-colors" />
       </div>
     </div>
 
@@ -201,7 +352,13 @@
 
       <!-- Current profile card -->
       <div class="glass-panel ghost-border rounded-xl p-5 copper-glow">
-        <span class="font-label text-xs tracking-widest uppercase text-primary">Active Profile</span>
+        <div class="flex items-center justify-between">
+          <span class="font-label text-xs tracking-widest uppercase text-primary">Active Profile</span>
+          <span class="font-label text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm bg-surface-container-highest"
+            class:text-primary={isFlowProfile}
+            class:text-on-surface-variant={!isFlowProfile}
+          >{isFlowProfile ? 'Flow' : 'Pressure'}</span>
+        </div>
         <h2 class="font-headline text-xl font-bold text-on-surface mt-2">{currentProfileTitle}</h2>
         {#if wf?.profile?.author}
           <p class="font-label text-xs text-on-surface-variant mt-1">by {wf.profile.author}</p>
@@ -215,7 +372,7 @@
         >{showProfilePicker ? 'Hide profiles' : 'Change profile'}</button>
       </div>
 
-      <!-- Profile picker (toggled) -->
+      <!-- Profile picker -->
       {#if showProfilePicker}
         <div class="glass-panel ghost-border rounded-xl p-4 max-h-64 overflow-y-auto flex flex-col gap-2">
           {#if profilesLoading}
@@ -251,14 +408,23 @@
         {#if profileSteps.length > 0}
           <div class="mt-3 flex flex-col gap-1.5">
             {#each profileSteps as step, i}
-              <div class="flex items-center gap-3 px-3 py-2 rounded-md bg-surface-container-lowest/50">
-                <span class="font-label text-[10px] text-outline w-4 text-center">{i + 1}</span>
-                <span class="font-label text-xs font-bold text-on-surface flex-1 truncate">{step.name ?? `Step ${i + 1}`}</span>
+              {@const isPreinfusion = profileAnalysis.preinfusionIndices.includes(i)}
+              <div class="flex items-center gap-3 px-3 py-2 rounded-md"
+                style:background-color={isPreinfusion ? 'oklch(from var(--color-primary) l c h / 0.04)' : 'oklch(from var(--color-surface-container-lowest) l c h / 0.5)'}
+              >
+                <span class="font-label text-[10px] w-4 text-center"
+                  class:text-primary={isPreinfusion}
+                  class:text-outline={!isPreinfusion}
+                >{i + 1}</span>
+                <span class="font-label text-xs font-bold flex-1 truncate"
+                  class:text-primary={isPreinfusion}
+                  class:text-on-surface={!isPreinfusion}
+                >{step.name ?? `Step ${i + 1}`}</span>
                 <div class="flex gap-3">
                   {#if step.pressure != null}
                     <span class="font-label text-[10px] text-on-surface-variant tabular-nums">{step.pressure}bar</span>
                   {/if}
-                  {#if step.flow != null}
+                  {#if step.flow != null && step.flow > 0}
                     <span class="font-label text-[10px] tabular-nums" style="color: #fef3c7;">{step.flow}ml/s</span>
                   {/if}
                   {#if step.temperature != null}
