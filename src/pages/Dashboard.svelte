@@ -247,6 +247,7 @@
   <div class="col-span-12 flex gap-4">
     <div class="flex-1"><MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
     <div class="flex-1"><MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
+    <div class="flex-1"><MetricCard label="Steam Temp" value={ms.steamTemperature.toFixed(1)} unit="°C" /></div>
     <div class="flex-1"><MetricCard label="Target Yield" value={targetYield} unit="g" href="/lab" /></div>
     <div class="flex-1"><MetricCard label="Dose" value={targetDose} unit="g" href="/lab" /></div>
     {#if water.connected}
