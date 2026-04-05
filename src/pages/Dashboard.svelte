@@ -3,8 +3,8 @@
   import { machineInfo } from '../lib/stores/machineInfo.js'
   import { workflow } from '../lib/stores/workflow.js'
   import { latestShot, loadLatestShot } from '../lib/stores/shots.js'
-  import { shotSettings } from '../lib/stores/shotSettings.js'
   import { waterLevel } from '../lib/stores/waterLevel.js'
+  import { updateWorkflow } from '../lib/stores/workflow.js'
   import { api } from '../lib/api/index.js'
   import DualGauge from '../lib/components/DualGauge.svelte'
   import MetricCard from '../lib/components/MetricCard.svelte'
@@ -31,7 +31,6 @@
   let ms = $derived($machineState)
   let wf = $derived($workflow)
   let shot = $derived($latestShot)
-  let currentSettings = $derived($shotSettings)
   let water = $derived($waterLevel)
 
   let info = $derived($machineInfo)
@@ -117,30 +116,31 @@
     steamDuration = Math.max(10, Math.min(90, steamDuration + delta))
   }
 
-  // Sync steam settings from machine on first receive
+  // Sync steam settings from workflow on first load
   let steamSettingsSynced = false
   $effect(() => {
-    if (currentSettings && !steamSettingsSynced) {
-      const t = currentSettings.targetSteamTemp ?? 0
+    if (wf?.steamSettings && !steamSettingsSynced) {
+      const t = wf.steamSettings.targetTemperature ?? 0
       steamEnabled = t > 0
       steamTemp = t > 0 ? Math.max(130, Math.min(160, t)) : 140
-      steamDuration = currentSettings.targetSteamDuration ?? 60
+      steamDuration = wf.steamSettings.duration ?? 60
+      steamFlow = wf.steamSettings.flow ?? 0.6
       steamSettingsSynced = true
     }
   })
 
   function buildSteamSettings() {
     return {
-      ...currentSettings,
-      targetSteamTemp: steamEnabled ? steamTemp : 0,
-      targetSteamDuration: steamDuration,
+      targetTemperature: steamEnabled ? steamTemp : 0,
+      duration: steamDuration,
+      flow: steamFlow,
     }
   }
 
   async function applySteamSettings() {
     steamLoading = true
     try {
-      await api.post('/machine/shotSettings', buildSteamSettings())
+      await updateWorkflow({ steamSettings: buildSteamSettings() })
     } catch (e) {
       console.error('Failed to apply steam settings:', e)
     } finally {
@@ -151,7 +151,7 @@
   async function startSteam() {
     steamLoading = true
     try {
-      await api.post('/machine/shotSettings', buildSteamSettings())
+      await updateWorkflow({ steamSettings: buildSteamSettings() })
       await api.put('/machine/state/steam')
     } catch (e) {
       console.error('Failed to start steam:', e)
