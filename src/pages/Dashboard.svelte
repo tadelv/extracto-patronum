@@ -359,8 +359,8 @@
     <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Extraction Notes</span>
     {#if shot}
       <textarea
-        class="flex-1 bg-transparent text-on-surface font-body text-sm leading-relaxed resize-none outline-none placeholder:text-outline"
-        placeholder="How was this shot? Tasting notes, observations..."
+        class="flex-1 bg-transparent text-on-surface font-body text-sm leading-relaxed resize-none outline-none placeholder:text-on-surface-variant/50"
+        placeholder="Tasting notes, observations, adjustments for next time..."
         bind:value={notesText}
         onfocusout={saveNotes}
       ></textarea>
