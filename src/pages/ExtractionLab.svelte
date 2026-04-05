@@ -26,9 +26,7 @@
       dose = wf.context?.targetDoseWeight ?? 18
       yieldTarget = wf.context?.targetYield ?? 36
       grinderSetting = wf.context?.grinderSetting ?? ''
-      const tankTemp = wf.profile?.tank_temperature
-      const firstStepTemp = wf.profile?.steps?.[0]?.temperature
-      temperature = tankTemp ?? firstStepTemp ?? 93
+      temperature = wf.profile?.steps?.[0]?.temperature || 93
       synced = true
     }
   })
@@ -39,6 +37,15 @@
     clearTimeout(saveTimer)
     saveTimer = setTimeout(async () => {
       try {
+        // Adjust all step temperatures relative to first step delta
+        const currentSteps = wf?.profile?.steps ?? []
+        const originalFirstTemp = currentSteps[0]?.temperature ?? 93
+        const delta = temperature - originalFirstTemp
+        const adjustedSteps = currentSteps.map(step => ({
+          ...step,
+          temperature: step.temperature != null ? step.temperature + delta : step.temperature,
+        }))
+
         await updateWorkflow({
           context: {
             targetDoseWeight: dose,
@@ -47,7 +54,7 @@
           },
           profile: {
             ...(wf?.profile ?? {}),
-            tank_temperature: temperature,
+            steps: adjustedSteps,
           },
         })
       } catch (e) {
@@ -83,9 +90,7 @@
     try {
       await updateWorkflow({ profile: profileRecord.profile })
       // Re-sync temperature from new profile
-      const tankTemp = profileRecord.profile?.tank_temperature
-      const firstStepTemp = profileRecord.profile?.steps?.[0]?.temperature
-      temperature = tankTemp ?? firstStepTemp ?? 93
+      temperature = profileRecord.profile?.steps?.[0]?.temperature || 93
     } catch (e) {
       console.error('Failed to switch profile:', e)
     }
