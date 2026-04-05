@@ -1,7 +1,6 @@
 <script>
   import { machineState } from '../lib/stores/machine.js'
   import { machineInfo } from '../lib/stores/machineInfo.js'
-  import { scaleState } from '../lib/stores/scale.js'
   import { workflow } from '../lib/stores/workflow.js'
   import { latestShot, loadLatestShot } from '../lib/stores/shots.js'
   import { shotSettings } from '../lib/stores/shotSettings.js'
@@ -11,6 +10,8 @@
   import MetricCard from '../lib/components/MetricCard.svelte'
   import GradientButton from '../lib/components/GradientButton.svelte'
   import ExtractionChart from '../lib/components/ExtractionChart.svelte'
+  import MachineControl from '../lib/components/MachineControl.svelte'
+  import ScaleCard from '../lib/components/ScaleCard.svelte'
 
   // --- Local state ---
   let steamEnabled = $state(true)
@@ -28,7 +29,6 @@
 
   // --- Derived values ---
   let ms = $derived($machineState)
-  let sc = $derived($scaleState)
   let wf = $derived($workflow)
   let shot = $derived($latestShot)
   let currentSettings = $derived($shotSettings)
@@ -205,14 +205,6 @@
     }
   }
 
-  async function tareScale() {
-    try {
-      await api.put('/scale/tare')
-    } catch (e) {
-      console.error('Failed to tare scale:', e)
-    }
-  }
-
   async function startRinse() {
     rinseLoading = true
     try {
@@ -243,21 +235,6 @@
   <div class="col-span-12 flex gap-4">
     <div class="flex-1"><MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
     <div class="flex-1"><MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
-    {#if sc.connected}
-      <div class="flex-1">
-        <button
-          class="w-full bg-surface-container-low px-4 py-3 rounded-xl ghost-border flex flex-col gap-1 text-left cursor-pointer hover:bg-surface-container transition-colors click-sink"
-          onclick={tareScale}
-          title="Tap to tare"
-        >
-          <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Weight</span>
-          <div class="flex items-baseline gap-1">
-            <span class="font-label text-2xl font-bold text-on-surface">{sc.weight.toFixed(1)}</span>
-            <span class="font-label text-xs text-outline">g</span>
-          </div>
-        </button>
-      </div>
-    {/if}
     <div class="flex-1"><MetricCard label="Target Yield" value={targetYield} unit="g" href="/lab" /></div>
     <div class="flex-1"><MetricCard label="Dose" value={targetDose} unit="g" href="/lab" /></div>
     {#if water.connected}
@@ -280,6 +257,12 @@
         </div>
       </div>
     {/if}
+  </div>
+
+  <!-- Control row -->
+  <div class="col-span-12 grid grid-cols-2 gap-4">
+    <MachineControl />
+    <ScaleCard />
   </div>
 
   <!-- Dual Gauges -->
