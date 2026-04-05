@@ -13,7 +13,10 @@
   import ExtractionChart from '../lib/components/ExtractionChart.svelte'
 
   // --- Local state ---
+  let steamEnabled = $state(true)
   let steamTemp = $state(140)
+  let steamDuration = $state(60)
+  let steamFlow = $state(0.6) // 0.6 = smooth, 1.2 = fast
   let timerMs = $state(0)
   let timerRunning = $state(false)
   let wasBrewing = false
@@ -107,25 +110,37 @@
   }
 
   function adjustSteamTemp(delta) {
-    steamTemp = Math.max(100, Math.min(165, steamTemp + delta))
+    steamTemp = Math.max(130, Math.min(160, steamTemp + delta))
   }
 
-  // Sync steam temp from machine settings on first receive
-  let steamTempSynced = false
+  function adjustSteamDuration(delta) {
+    steamDuration = Math.max(10, Math.min(90, steamDuration + delta))
+  }
+
+  // Sync steam settings from machine on first receive
+  let steamSettingsSynced = false
   $effect(() => {
-    if (currentSettings && !steamTempSynced) {
-      steamTemp = currentSettings.targetSteamTemp
-      steamTempSynced = true
+    if (currentSettings && !steamSettingsSynced) {
+      const t = currentSettings.targetSteamTemp ?? 0
+      steamEnabled = t > 0
+      steamTemp = t > 0 ? Math.max(130, Math.min(160, t)) : 140
+      steamDuration = currentSettings.targetSteamDuration ?? 60
+      steamSettingsSynced = true
     }
   })
+
+  function buildSteamSettings() {
+    return {
+      ...currentSettings,
+      targetSteamTemp: steamEnabled ? steamTemp : 0,
+      targetSteamDuration: steamDuration,
+    }
+  }
 
   async function applySteamSettings() {
     steamLoading = true
     try {
-      await api.post('/machine/shotSettings', {
-        ...currentSettings,
-        targetSteamTemp: steamTemp,
-      })
+      await api.post('/machine/shotSettings', buildSteamSettings())
     } catch (e) {
       console.error('Failed to apply steam settings:', e)
     } finally {
@@ -136,10 +151,7 @@
   async function startSteam() {
     steamLoading = true
     try {
-      await api.post('/machine/shotSettings', {
-        ...currentSettings,
-        targetSteamTemp: steamTemp,
-      })
+      await api.post('/machine/shotSettings', buildSteamSettings())
       await api.put('/machine/state/steam')
     } catch (e) {
       console.error('Failed to start steam:', e)
@@ -316,33 +328,80 @@
 
   <!-- Steam Panel -->
   <div
-    class="col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-4 transition-shadow duration-500"
+    class="col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 transition-shadow duration-500"
     class:steam-active-glow={ms.isSteaming}
   >
-    <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Steam Control</span>
-
-    <!-- Target temp -->
+    <!-- Header with enable toggle -->
     <div class="flex items-center justify-between">
-      <span class="font-body text-sm text-on-surface-variant">Target</span>
-      <div class="flex items-center gap-3">
-        <button
-          class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold text-lg flex items-center justify-center tactile-sink"
-          onclick={() => adjustSteamTemp(-5)}
-        >&minus;</button>
-        <span class="font-label text-2xl font-bold text-on-surface tabular-nums w-16 text-center">{steamTemp}&deg;C</span>
-        <button
-          class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold text-lg flex items-center justify-center tactile-sink"
-          onclick={() => adjustSteamTemp(5)}
-        >+</button>
-      </div>
+      <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Steam Control</span>
+      <button
+        class="relative w-12 h-6 rounded-full transition-colors tactile-sink"
+        class:bg-primary={steamEnabled}
+        class:bg-surface-container-highest={!steamEnabled}
+        onclick={() => { steamEnabled = !steamEnabled; applySteamSettings() }}
+        aria-label="Toggle steam"
+      >
+        <div
+          class="absolute top-1 w-4 h-4 rounded-full bg-on-surface transition-transform duration-200"
+          class:translate-x-1={!steamEnabled}
+          class:translate-x-7={steamEnabled}
+        ></div>
+      </button>
     </div>
 
-    <!-- Live steam temp (visible when steaming) -->
-    {#if ms.isSteaming}
+    {#if steamEnabled}
+      <!-- Temperature -->
       <div class="flex items-center justify-between">
-        <span class="font-body text-sm text-on-surface-variant">Live</span>
-        <span class="font-label text-2xl font-bold text-primary tabular-nums">{ms.steamTemperature.toFixed(1)}&deg;C</span>
+        <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Temp</span>
+        <div class="flex items-center gap-2">
+          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(-5)}>&minus;</button>
+          <span class="font-label text-lg font-bold text-on-surface tabular-nums w-14 text-center">{steamTemp}&deg;C</span>
+          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(5)}>+</button>
+        </div>
       </div>
+
+      <!-- Duration -->
+      <div class="flex items-center justify-between">
+        <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Time</span>
+        <div class="flex items-center gap-2">
+          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(-5)}>&minus;</button>
+          <span class="font-label text-lg font-bold text-on-surface tabular-nums w-14 text-center">{steamDuration}s</span>
+          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(5)}>+</button>
+        </div>
+      </div>
+
+      <!-- Flow -->
+      <div class="flex items-center justify-between">
+        <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Flow</span>
+        <div class="flex gap-1">
+          <button
+            class="px-3 py-1 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
+            class:bg-primary={steamFlow === 0.6}
+            class:text-on-primary={steamFlow === 0.6}
+            class:bg-surface-container-highest={steamFlow !== 0.6}
+            class:text-on-surface-variant={steamFlow !== 0.6}
+            onclick={() => steamFlow = 0.6}
+          >Smooth</button>
+          <button
+            class="px-3 py-1 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
+            class:bg-primary={steamFlow === 1.2}
+            class:text-on-primary={steamFlow === 1.2}
+            class:bg-surface-container-highest={steamFlow !== 1.2}
+            class:text-on-surface-variant={steamFlow !== 1.2}
+            onclick={() => steamFlow = 1.2}
+          >Fast</button>
+        </div>
+      </div>
+
+      <!-- Live steam temp -->
+      {#if ms.isSteaming}
+        <div class="flex items-center justify-between">
+          <span class="font-label text-xs tracking-wider uppercase text-primary">Live</span>
+          <span class="font-label text-lg font-bold text-primary tabular-nums">{ms.steamTemperature.toFixed(1)}&deg;C</span>
+        </div>
+      {/if}
+    {:else}
+      <p class="font-body text-sm text-outline py-2">Steam disabled. Toggle on to configure.</p>
     {/if}
 
     <!-- Buttons -->
@@ -350,19 +409,19 @@
       <div class="flex-1">
         {#if ms.isSteaming}
           <button
-            class="w-full py-4 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
+            class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
             class:opacity-50={steamLoading}
             disabled={steamLoading}
             onclick={stopSteam}
           >Stop Steam</button>
         {:else if hasGHC}
-          <GradientButton label="Apply" disabled={steamLoading} onclick={applySteamSettings} />
+          <GradientButton label="Apply" disabled={steamLoading || !steamEnabled} onclick={applySteamSettings} />
         {:else}
-          <GradientButton label="Start Steam" disabled={steamLoading || !ms.isIdle} onclick={startSteam} />
+          <GradientButton label="Start Steam" disabled={steamLoading || !steamEnabled || !ms.isIdle} onclick={startSteam} />
         {/if}
       </div>
       <button
-        class="px-5 py-4 rounded-sm bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
+        class="px-4 py-3 rounded-sm bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink transition-opacity text-sm"
         class:opacity-50={rinseLoading}
         disabled={rinseLoading}
         onclick={startRinse}
