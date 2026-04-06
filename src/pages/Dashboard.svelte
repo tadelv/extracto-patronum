@@ -48,19 +48,20 @@
   let timerInterval = null
 
   $effect(() => {
-    const brewing = ms.isBrewing
+    const activelyBrewing = ms.isBrewing &&
+      (ms.substate === 'preinfusion' || ms.substate === 'pouring')
 
-    // Detect transition: not brewing -> brewing => reset + start
-    if (brewing && !wasBrewing) {
+    // Detect transition: not actively brewing -> actively brewing => reset + start
+    if (activelyBrewing && !wasBrewing) {
       timerMs = 0
       startTimer()
     }
     // Detect transition: brewing -> not brewing => stop
-    if (!brewing && wasBrewing) {
+    if (!ms.isBrewing && wasBrewing) {
       stopTimer()
       loadLatestShot()
     }
-    wasBrewing = brewing
+    wasBrewing = activelyBrewing
   })
 
   // Cleanup on unmount
