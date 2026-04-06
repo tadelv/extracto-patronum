@@ -148,6 +148,17 @@
     }
   }
 
+  function formatDays(daysOfWeek) {
+    if (!Array.isArray(daysOfWeek) || daysOfWeek.length === 0) return 'Daily'
+    if (daysOfWeek.length === 7) return 'Daily'
+    const weekdays = [1, 2, 3, 4, 5]
+    const weekends = [6, 7]
+    if (weekdays.every(d => daysOfWeek.includes(d)) && daysOfWeek.length === 5) return 'Weekdays'
+    if (weekends.every(d => daysOfWeek.includes(d)) && daysOfWeek.length === 2) return 'Weekends'
+    const names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    return daysOfWeek.map(d => names[d - 1] ?? d).join(', ')
+  }
+
   function handlePreferredMachine(e) {
     preferredMachine = e.target.value
     savePreferences()
@@ -253,60 +264,59 @@
       </div>
     </div>
 
-    <!-- Presence Schedules -->
+    <!-- Wake Schedules -->
     <div class="bg-surface-container-low p-6 rounded-xl">
-      <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Presence Schedules</span>
-      <p class="font-body text-xs text-on-surface-variant mt-1">Configure when the machine wakes up automatically.</p>
+      <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Wake Schedules</span>
+      <p class="font-body text-xs text-on-surface-variant mt-1">Your machine will heat up and be ready at these times.</p>
 
-      {#if schedules.length > 0}
-        <div class="flex flex-col gap-2 mt-4">
+      <div class="mt-4 flex flex-col gap-3">
+        {#if schedules.length > 0}
           {#each schedules as schedule}
-            <div class="flex items-center justify-between bg-surface-container-lowest px-4 py-3 rounded-lg">
-              <div>
-                <span class="font-label text-sm font-bold text-on-surface">{schedule.time ?? '—'}</span>
-                <span class="font-label text-xs text-on-surface-variant ml-2">{schedule.days ?? 'daily'}</span>
-                {#if schedule.enabled === false}
-                  <span class="font-label text-xs text-outline ml-2">(disabled)</span>
-                {/if}
-              </div>
+            {@const daysLabel = formatDays(schedule.daysOfWeek)}
+            <div class="flex items-center gap-4 px-4 py-3 rounded-lg bg-surface-container-lowest">
+              <span class="font-label text-2xl font-bold text-on-surface tabular-nums w-20">{schedule.time ?? '—'}</span>
+              <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant flex-1">{daysLabel}</span>
+              {#if schedule.enabled === false}
+                <span class="font-label text-[10px] tracking-wider uppercase text-outline px-2 py-0.5 rounded-sm bg-surface-container-highest">Off</span>
+              {/if}
               <button
-                class="w-8 h-8 rounded-lg bg-surface-container-highest text-on-surface-variant font-bold flex items-center justify-center tactile-sink text-sm"
+                class="font-label text-xs text-outline hover:text-error transition-colors"
                 onclick={() => deleteSchedule(schedule.id)}
-              >&times;</button>
+              >Remove</button>
             </div>
           {/each}
-        </div>
-      {:else if !schedulesLoading}
-        <p class="font-body text-sm text-outline mt-4">No schedules configured.</p>
-      {/if}
+        {:else if !schedulesLoading}
+          <div class="px-4 py-6 rounded-lg bg-surface-container-lowest text-center">
+            <p class="font-body text-sm text-outline">No wake schedules set</p>
+            <p class="font-body text-xs text-outline mt-1">Add one below so your machine is ready when you are.</p>
+          </div>
+        {/if}
 
-      <!-- Add schedule -->
-      <div class="flex items-end gap-3 mt-4">
-        <div>
-          <label for="schedule-time" class="font-label text-xs text-on-surface-variant block mb-1">Time</label>
+        <!-- Add new schedule -->
+        <div class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-container ghost-border">
           <input
             id="schedule-time"
             type="time"
             bind:value={newScheduleTime}
-            class="bg-surface-container-highest text-on-surface font-label text-sm px-4 py-3 rounded-lg border-0 outline-none focus:ring-2 focus:ring-primary"
+            class="bg-transparent text-on-surface font-label text-xl font-bold outline-none w-24 tabular-nums"
           />
+          <div class="flex gap-1">
+            {#each [{ value: 'weekdays', label: 'Weekdays' }, { value: 'weekends', label: 'Weekends' }, { value: 'daily', label: 'Daily' }] as opt}
+              <button
+                class="px-3 py-1.5 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
+                class:bg-primary={newScheduleDays === opt.value}
+                class:text-on-primary={newScheduleDays === opt.value}
+                class:bg-surface-container-highest={newScheduleDays !== opt.value}
+                class:text-on-surface-variant={newScheduleDays !== opt.value}
+                onclick={() => newScheduleDays = opt.value}
+              >{opt.label}</button>
+            {/each}
+          </div>
+          <button
+            class="ml-auto px-5 py-1.5 gradient-cta text-on-primary-fixed font-label font-bold text-xs tracking-widest uppercase rounded-sm tactile-sink"
+            onclick={addSchedule}
+          >Add</button>
         </div>
-        <div>
-          <label for="schedule-days" class="font-label text-xs text-on-surface-variant block mb-1">Days</label>
-          <select
-            id="schedule-days"
-            bind:value={newScheduleDays}
-            class="bg-surface-container-highest text-on-surface font-label text-sm px-4 py-3 rounded-lg border-0 outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="daily">Daily</option>
-            <option value="weekdays">Weekdays</option>
-            <option value="weekends">Weekends</option>
-          </select>
-        </div>
-        <button
-          class="px-6 py-3 rounded-lg bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink text-sm"
-          onclick={addSchedule}
-        >Add</button>
       </div>
     </div>
   </div>
