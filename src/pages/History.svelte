@@ -9,6 +9,8 @@
   let expandedId = $state(null)
   let expandedShot = $state(null)
   let expandLoading = $state(false)
+  let expandedRating = $state(0)
+  let expandedRatingSaved = $state(false)
 
   let shotList = $derived($shots)
   let loading = $derived($shotsLoading)
@@ -71,6 +73,8 @@
     }
     expandedId = id
     expandedShot = null
+    expandedRating = shot.annotations?.enjoyment ?? 0
+    expandedRatingSaved = false
 
     // Fetch full shot record with measurements
     if (shot.id) {
@@ -102,6 +106,25 @@
       return { dateLabel, time }
     } catch {
       return { dateLabel: dateStr, time: '' }
+    }
+  }
+
+  async function setExpandedRating(shot, value) {
+    expandedRating = expandedRating === value ? 0 : value
+    expandedRatingSaved = false
+    if (!shot.id) return
+    try {
+      await api.put(`/shots/${shot.id}`, {
+        annotations: {
+          ...shot.annotations,
+          enjoyment: expandedRating > 0 ? expandedRating : undefined,
+        },
+      })
+      // Update the shot in the local list
+      shot.annotations = { ...shot.annotations, enjoyment: expandedRating > 0 ? expandedRating : undefined }
+      expandedRatingSaved = true
+    } catch (e) {
+      console.error('Failed to save rating:', e)
     }
   }
 
@@ -341,9 +364,23 @@
               </div>
             {/if}
 
-            {#if !shot.annotations?.espressoNotes && !shot.shotNotes && !expandedShot?.measurements?.length && !shot.annotations?.drinkTds}
-              <p class="font-body text-sm text-outline">No additional details for this shot.</p>
-            {/if}
+            <!-- Rating -->
+            <div class="flex items-center gap-1">
+              <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant mr-2">Rating</span>
+              {#each [1, 2, 3, 4, 5] as n}
+                <button
+                  class="w-7 h-7 rounded-md font-label text-xs font-bold transition-colors tactile-sink"
+                  class:bg-primary={expandedRating >= n}
+                  class:text-on-primary={expandedRating >= n}
+                  class:bg-surface-container-highest={expandedRating < n}
+                  class:text-on-surface-variant={expandedRating < n}
+                  onclick={() => setExpandedRating(shot, n)}
+                >{n}</button>
+              {/each}
+              {#if expandedRatingSaved}
+                <span class="font-label text-xs text-primary ml-2">Saved</span>
+              {/if}
+            </div>
           {/if}
         </div>
       {/if}

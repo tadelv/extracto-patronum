@@ -24,6 +24,7 @@
   let rinseLoading = $state(false)
   let brewLoading = $state(false)
   let notesText = $state('')
+  let notesRating = $state(0)
   let notesSaved = $state(false)
 
   // --- Derived values ---
@@ -75,10 +76,11 @@
     loadLatestShot()
   })
 
-  // Sync notes text when latest shot changes
+  // Sync notes + rating when latest shot changes
   $effect(() => {
     if (shot) {
       notesText = shot.annotations?.espressoNotes ?? shot.shotNotes ?? ''
+      notesRating = shot.annotations?.enjoyment ?? 0
       notesSaved = false
     }
   })
@@ -209,12 +211,21 @@
     if (!shot?.id) return
     try {
       await api.put(`/shots/${shot.id}`, {
-        annotations: { ...shot.annotations, espressoNotes: notesText },
+        annotations: {
+          ...shot.annotations,
+          espressoNotes: notesText,
+          enjoyment: notesRating > 0 ? notesRating : undefined,
+        },
       })
       notesSaved = true
     } catch (e) {
       console.error('Failed to save notes:', e)
     }
+  }
+
+  function setRating(value) {
+    notesRating = notesRating === value ? 0 : value // tap again to clear
+    saveNotes()
   }
 
   async function startRinse() {
@@ -441,10 +452,21 @@
         bind:value={notesText}
         onfocusout={saveNotes}
       ></textarea>
+      <!-- Rating -->
       <div class="flex items-center justify-between">
-        {#if shot.annotations?.enjoyment}
-          <span class="font-label text-xs text-on-surface-variant">Enjoyment: <span class="text-primary font-bold">{shot.annotations.enjoyment}/5</span></span>
-        {/if}
+        <div class="flex items-center gap-1">
+          <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant mr-2">Rating</span>
+          {#each [1, 2, 3, 4, 5] as n}
+            <button
+              class="w-7 h-7 rounded-md font-label text-xs font-bold transition-colors tactile-sink"
+              class:bg-primary={notesRating >= n}
+              class:text-on-primary={notesRating >= n}
+              class:bg-surface-container-highest={notesRating < n}
+              class:text-on-surface-variant={notesRating < n}
+              onclick={() => setRating(n)}
+            >{n}</button>
+          {/each}
+        </div>
         {#if notesSaved}
           <span class="font-label text-xs text-primary">Saved</span>
         {/if}
