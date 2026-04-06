@@ -178,35 +178,7 @@
   {/if}
   <div class="flex flex-col gap-4 px-6">
 
-    <!-- Interface Mode -->
-    <div class="bg-surface-container-low p-6 rounded-xl">
-      <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Interface Mode</span>
-      <div class="flex items-center justify-between mt-4">
-        <div>
-          <p class="font-label text-sm font-bold text-on-surface">
-            {interfaceMode === 'operator' ? 'Operator' : 'Tinkerer'}
-          </p>
-          <p class="font-body text-xs text-on-surface-variant mt-1">
-            {interfaceMode === 'operator'
-              ? 'Simplified controls for daily use'
-              : 'Full access to all parameters and diagnostics'}
-          </p>
-        </div>
-        <button
-          aria-label="Toggle interface mode"
-          class="relative w-14 h-8 rounded-full transition-colors tactile-sink"
-          class:bg-primary={interfaceMode === 'tinkerer'}
-          class:bg-surface-container-highest={interfaceMode !== 'tinkerer'}
-          onclick={toggleMode}
-        >
-          <div
-            class="absolute top-1 w-6 h-6 rounded-full bg-on-surface transition-transform"
-            class:translate-x-7={interfaceMode === 'tinkerer'}
-            class:translate-x-1={interfaceMode !== 'tinkerer'}
-          ></div>
-        </button>
-      </div>
-    </div>
+    <!-- Interface Mode — hidden for now, TODO: implement Operator vs Tinkerer views -->
 
     <!-- Re-run Onboarding -->
     <div class="bg-surface-container-low p-6 rounded-xl">
