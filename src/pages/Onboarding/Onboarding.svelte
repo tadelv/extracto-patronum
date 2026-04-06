@@ -26,24 +26,14 @@
 
   async function loadSuggestions() {
     try {
-      const result = await api.get('/shots?limit=100&offset=0&order=desc')
+      const result = await api.get('/shots?limit=14&offset=0&order=desc')
       const items = Array.isArray(result) ? result : (result.items ?? [])
       if (items.length === 0) {
         suggestionsLoading = false
         return
       }
 
-      // Filter to last 14 days
-      const cutoff = Date.now() - 14 * 24 * 60 * 60 * 1000
-      const recent = items.filter(s => {
-        const ts = s.timestamp ? new Date(s.timestamp).getTime() : 0
-        return ts > cutoff
-      })
-
-      if (recent.length === 0) {
-        suggestionsLoading = false
-        return
-      }
+      const recent = items
 
       // Find most-used coffee
       const coffeeCounts = {}

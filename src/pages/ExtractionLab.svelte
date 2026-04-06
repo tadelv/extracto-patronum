@@ -14,6 +14,13 @@
   let peakPressure = $state(9)
   let extractionFlow = $state(2)
 
+  // --- Coffee/beans data ---
+  let beans = $state([])
+  let beansLoading = $state(true)
+  let showBeanPicker = $state(false)
+  let currentCoffeeName = $derived(wf?.context?.coffeeName ?? '')
+  let currentRoaster = $derived(wf?.context?.coffeeRoaster ?? '')
+
   // --- Profile data ---
   let profiles = $state([])
   let profilesLoading = $state(true)
@@ -208,18 +215,58 @@
     return () => clearTimeout(saveTimer)
   })
 
-  // --- Profile loading ---
+  // --- Data loading ---
   onMount(async () => {
-    try {
-      const res = await api.get('/profiles')
-      const all = Array.isArray(res) ? res : (res?.profiles ?? [])
-      profiles = all.filter(p => (p.profile?.beverage_type ?? '').toLowerCase() === 'espresso')
-    } catch (e) {
-      console.error('Failed to load profiles:', e)
-    } finally {
-      profilesLoading = false
+    // Load profiles and beans in parallel
+    const [profileRes, beansRes, shotsRes] = await Promise.all([
+      api.get('/profiles').catch(() => []),
+      api.get('/beans').catch(() => []),
+      api.get('/shots?limit=100&offset=0&order=desc').catch(() => ({ items: [] })),
+    ])
+
+    // Profiles
+    const allProfiles = Array.isArray(profileRes) ? profileRes : (profileRes?.profiles ?? [])
+    profiles = allProfiles.filter(p => (p.profile?.beverage_type ?? '').toLowerCase() === 'espresso')
+    profilesLoading = false
+
+    // Beans — cross-reference with recent shots for usage counts
+    const allBeans = Array.isArray(beansRes) ? beansRes : []
+    const shots = Array.isArray(shotsRes) ? shotsRes : (shotsRes?.items ?? [])
+
+    // Count bean usage from recent shots
+    const beanUsage = {}
+    for (const s of shots) {
+      const batchId = s.workflow?.context?.beanBatchId
+      const name = s.workflow?.context?.coffeeName
+      const key = batchId || name
+      if (key) beanUsage[key] = (beanUsage[key] ?? 0) + 1
     }
+
+    // Annotate beans with usage count and sort by recency
+    beans = allBeans
+      .filter(b => !b.archived)
+      .map(b => ({
+        ...b,
+        _usage: beanUsage[b.id] ?? beanUsage[b.name] ?? 0,
+      }))
+      .sort((a, b) => b._usage - a._usage || new Date(b.updatedAt) - new Date(a.updatedAt))
+    beansLoading = false
   })
+
+  async function selectBean(bean) {
+    try {
+      await updateWorkflow({
+        context: {
+          coffeeName: bean.name,
+          coffeeRoaster: bean.roaster,
+          beanBatchId: bean.id,
+        },
+      })
+      showBeanPicker = false
+    } catch (e) {
+      console.error('Failed to switch bean:', e)
+    }
+  }
 
   async function selectProfile(profileRecord) {
     try {
@@ -347,8 +394,62 @@
       </div>
     </div>
 
-    <!-- Right column: Profile -->
+    <!-- Right column: Coffee + Profile -->
     <div class="col-span-5 flex flex-col gap-4">
+
+      <!-- Current coffee card -->
+      <div class="glass-panel ghost-border rounded-xl p-5">
+        <span class="font-label text-xs tracking-widest uppercase text-primary">Coffee</span>
+        <h2 class="font-headline text-lg font-bold text-on-surface mt-2">{currentCoffeeName || 'No coffee selected'}</h2>
+        {#if currentRoaster}
+          <p class="font-label text-xs text-on-surface-variant mt-0.5">{currentRoaster}</p>
+        {/if}
+        <button
+          class="mt-3 font-label text-xs tracking-widest uppercase text-primary hover:underline transition-colors"
+          onclick={() => showBeanPicker = !showBeanPicker}
+        >{showBeanPicker ? 'Hide' : 'Change coffee'}</button>
+      </div>
+
+      <!-- Bean picker -->
+      {#if showBeanPicker}
+        <div class="glass-panel ghost-border rounded-xl p-4 max-h-56 overflow-y-auto flex flex-col gap-1">
+          {#if beansLoading}
+            <div class="flex items-center justify-center py-4">
+              <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          {:else if beans.length === 0}
+            <p class="font-body text-sm text-outline text-center py-4">No beans found on the Bridge</p>
+          {:else}
+            {#each beans as bean}
+              {@const isActive = bean.name === currentCoffeeName && bean.roaster === currentRoaster}
+              <button
+                class="text-left px-3 py-2 rounded-lg transition-all hover:bg-surface-container-high"
+                style:background-color={isActive ? 'oklch(from var(--color-primary) l c h / 0.1)' : undefined}
+                onclick={() => selectBean(bean)}
+              >
+                <div class="flex items-center justify-between">
+                  <span class="font-label text-sm font-bold truncate"
+                    class:text-primary={isActive}
+                    class:text-on-surface={!isActive}
+                  >{bean.name}</span>
+                  {#if bean._usage > 0}
+                    <span class="font-label text-[10px] text-on-surface-variant ml-2 shrink-0">{bean._usage} shots</span>
+                  {/if}
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="font-label text-[10px] text-on-surface-variant">{bean.roaster}</span>
+                  {#if bean.country}
+                    <span class="font-label text-[10px] text-outline">{bean.country}</span>
+                  {/if}
+                  {#if bean.processing}
+                    <span class="font-label text-[10px] text-outline">{bean.processing}</span>
+                  {/if}
+                </div>
+              </button>
+            {/each}
+          {/if}
+        </div>
+      {/if}
 
       <!-- Current profile card -->
       <div class="glass-panel ghost-border rounded-xl p-5 copper-glow">
