@@ -302,8 +302,8 @@
               <span class="font-label text-xs text-on-surface-variant ml-3">Loading shot data...</span>
             </div>
           {:else}
-            <!-- Details grid -->
-            <div class="flex gap-6 flex-wrap">
+            <!-- Details + rating row -->
+            <div class="flex items-center gap-6 flex-wrap">
               {#if shot.workflow?.context?.grinderSetting}
                 <div>
                   <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant block">Grind</span>
@@ -328,6 +328,24 @@
                   <span class="font-label text-sm text-primary">1:{(yieldVal / doseVal).toFixed(1)}</span>
                 </div>
               {/if}
+
+              <!-- Rating inline -->
+              <div class="ml-auto flex items-center gap-1">
+                <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant mr-1">Rating</span>
+                {#each [1, 2, 3, 4, 5] as n}
+                  <button
+                    class="w-7 h-7 rounded-md font-label text-xs font-bold transition-colors tactile-sink"
+                    class:bg-primary={expandedRating >= n}
+                    class:text-on-primary={expandedRating >= n}
+                    class:bg-surface-container-highest={expandedRating < n}
+                    class:text-on-surface-variant={expandedRating < n}
+                    onclick={() => setExpandedRating(shot, n)}
+                  >{n}</button>
+                {/each}
+                {#if expandedRatingSaved}
+                  <span class="font-label text-xs text-primary ml-1">Saved</span>
+                {/if}
+              </div>
             </div>
 
             <!-- Notes -->
@@ -364,23 +382,6 @@
               </div>
             {/if}
 
-            <!-- Rating -->
-            <div class="flex items-center gap-1">
-              <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant mr-2">Rating</span>
-              {#each [1, 2, 3, 4, 5] as n}
-                <button
-                  class="w-7 h-7 rounded-md font-label text-xs font-bold transition-colors tactile-sink"
-                  class:bg-primary={expandedRating >= n}
-                  class:text-on-primary={expandedRating >= n}
-                  class:bg-surface-container-highest={expandedRating < n}
-                  class:text-on-surface-variant={expandedRating < n}
-                  onclick={() => setExpandedRating(shot, n)}
-                >{n}</button>
-              {/each}
-              {#if expandedRatingSaved}
-                <span class="font-label text-xs text-primary ml-2">Saved</span>
-              {/if}
-            </div>
           {/if}
         </div>
       {/if}
