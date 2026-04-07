@@ -10,10 +10,20 @@ A dark, warm-toned dashboard UI for the [Decent DE1](https://decentespresso.com/
 - **Extraction lab** — tweak dose, yield, temperature, pressure, and grind parameters on the fly; swap profiles and coffees mid-session
 - **Shot journal** — searchable history of every shot with extraction charts, notes, and enjoyment ratings
 - **Wake schedules** — set the machine to heat up before you stumble to the kitchen
-- **Maintenance tools** — flush, descale, and transport mode at a tap
 - **Scale integration** — live weight tracking from a connected Bluetooth scale
 
 ![Customizer](screenshots/lab.png)
+
+## Installing on Streamline Bridge
+
+1. Go to the [`dist`](https://github.com/tadelv/extracto-patronum/tree/dist) branch on GitHub
+2. Click **Code > Download ZIP**
+3. Open your Streamline Bridge settings and navigate to the **Skins** section
+4. Install the downloaded ZIP via the skin upload option
+
+## Planned for the future
+
+- **Maintenance tools** — flush, descale, and transport mode
 
 ## Stack
 
