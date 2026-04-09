@@ -60,6 +60,7 @@
       <a
         href={item.path}
         use:link
+        tabindex="0"
         class="px-4 py-1.5 text-xs font-label tracking-widest uppercase transition-colors rounded-sm"
         class:text-primary={router.location === item.path}
         class:bg-surface-container={router.location === item.path}
@@ -74,6 +75,7 @@
     <a
       href="/settings"
       use:link
+      tabindex="0"
       aria-label="Settings"
       class="ml-2 p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container"
     >
