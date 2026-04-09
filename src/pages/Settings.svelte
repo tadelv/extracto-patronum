@@ -298,6 +298,7 @@
             id="schedule-time"
             type="time"
             bind:value={newScheduleTime}
+            aria-label="Wake-up time"
             class="bg-transparent text-on-surface font-label text-xl font-bold outline-none w-24 tabular-nums"
           />
           <div class="flex gap-1">

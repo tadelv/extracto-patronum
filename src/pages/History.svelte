@@ -201,6 +201,7 @@
       bind:value={filterCoffee}
       oninput={handleFilterInput}
       placeholder="Filter by coffee..."
+      aria-label="Filter by coffee name"
       class="flex-1 bg-surface-container-low text-on-surface font-label text-sm px-4 py-2.5 rounded-lg border-0 outline-none focus:ring-1 focus:ring-primary placeholder:text-outline"
     />
     <input
@@ -208,6 +209,7 @@
       bind:value={filterProfile}
       oninput={handleFilterInput}
       placeholder="Filter by profile..."
+      aria-label="Filter by profile name"
       class="flex-1 bg-surface-container-low text-on-surface font-label text-sm px-4 py-2.5 rounded-lg border-0 outline-none focus:ring-1 focus:ring-primary placeholder:text-outline"
     />
   </div>
@@ -330,7 +332,7 @@
               {/if}
 
               <!-- Rating inline -->
-              <div class="ml-auto flex items-center gap-1">
+              <div class="ml-auto flex items-center gap-1" role="radiogroup" aria-label="Shot rating">
                 <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant mr-1">Rating</span>
                 {#each [1, 2, 3, 4, 5] as n}
                   <button
@@ -340,6 +342,8 @@
                     class:bg-surface-container-highest={expandedRating < n}
                     class:text-on-surface-variant={expandedRating < n}
                     onclick={() => setExpandedRating(shot, n)}
+                    aria-label="Rate {n} out of 5"
+                    aria-pressed={expandedRating >= n}
                   >{n}</button>
                 {/each}
                 {#if expandedRatingSaved}

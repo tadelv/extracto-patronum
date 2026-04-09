@@ -308,25 +308,25 @@
         <div class="glass-panel ghost-border rounded-xl p-5">
           <span class="font-label text-xs tracking-widest uppercase text-primary">Dose In</span>
           <div class="flex items-center justify-between mt-3">
-            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustDose(-0.5)}>&minus;</button>
+            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustDose(-0.5)} aria-label="Decrease dose">&minus;</button>
             <div class="flex items-baseline">
-              <input type="number" bind:value={dose} step="0.5" min="10" max="30"
+              <input type="number" bind:value={dose} step="0.5" min="10" max="30" aria-label="Dose weight in grams"
                 class="w-16 bg-transparent font-label text-4xl font-bold text-on-surface text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
               <span class="font-label text-sm text-outline">g</span>
             </div>
-            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustDose(0.5)}>+</button>
+            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustDose(0.5)} aria-label="Increase dose">+</button>
           </div>
         </div>
         <div class="glass-panel ghost-border rounded-xl p-5">
           <span class="font-label text-xs tracking-widest uppercase text-primary">Yield Out</span>
           <div class="flex items-center justify-between mt-3">
-            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustYield(-0.5)}>&minus;</button>
+            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustYield(-0.5)} aria-label="Decrease yield">&minus;</button>
             <div class="flex items-baseline">
-              <input type="number" bind:value={yieldTarget} step="0.5" min="15" max="80"
+              <input type="number" bind:value={yieldTarget} step="0.5" min="15" max="80" aria-label="Yield weight in grams"
                 class="w-16 bg-transparent font-label text-4xl font-bold text-on-surface text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
               <span class="font-label text-sm text-outline">g</span>
             </div>
-            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustYield(0.5)}>+</button>
+            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustYield(0.5)} aria-label="Increase yield">+</button>
           </div>
         </div>
       </div>
@@ -342,9 +342,9 @@
       <div class="glass-panel ghost-border rounded-xl p-5">
         <span class="font-label text-xs tracking-widest uppercase text-primary">Brew Temperature</span>
         <div class="flex items-center justify-between mt-3">
-          <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustTemp(-0.5)}>&minus;</button>
+          <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustTemp(-0.5)} aria-label="Decrease brew temperature">&minus;</button>
           <span class="font-label text-5xl font-bold text-on-surface tabular-nums">{temperature.toFixed(1)}<span class="text-lg text-outline ml-1">&deg;C</span></span>
-          <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustTemp(0.5)}>+</button>
+          <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustTemp(0.5)} aria-label="Increase brew temperature">+</button>
         </div>
       </div>
 
@@ -355,9 +355,9 @@
           <span class="font-label text-xs tracking-widest uppercase text-primary">Preinfusion</span>
           <p class="font-body text-[10px] text-on-surface-variant mt-0.5">Total soak time before extraction</p>
           <div class="flex items-center justify-between mt-3">
-            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPreinfusion(-1)}>&minus;</button>
+            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPreinfusion(-1)} aria-label="Decrease preinfusion time">&minus;</button>
             <span class="font-label text-3xl font-bold text-on-surface tabular-nums">{preinfusionTime.toFixed(0)}<span class="text-sm text-outline ml-1">s</span></span>
-            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPreinfusion(1)}>+</button>
+            <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPreinfusion(1)} aria-label="Increase preinfusion time">+</button>
           </div>
         </div>
 
@@ -367,9 +367,9 @@
             <span class="font-label text-xs tracking-widest uppercase" style="color: #fef3c7;">Extraction Flow</span>
             <p class="font-body text-[10px] text-on-surface-variant mt-0.5">Target flow during extraction</p>
             <div class="flex items-center justify-between mt-3">
-              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustExtractionFlow(-0.1)}>&minus;</button>
+              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustExtractionFlow(-0.1)} aria-label="Decrease extraction flow">&minus;</button>
               <span class="font-label text-3xl font-bold tabular-nums" style="color: #fef3c7;">{extractionFlow.toFixed(1)}<span class="text-sm text-outline ml-1">ml/s</span></span>
-              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustExtractionFlow(0.1)}>+</button>
+              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustExtractionFlow(0.1)} aria-label="Increase extraction flow">+</button>
             </div>
           </div>
         {:else}
@@ -377,9 +377,9 @@
             <span class="font-label text-xs tracking-widest uppercase text-primary">Peak Pressure</span>
             <p class="font-body text-[10px] text-on-surface-variant mt-0.5">Max pressure during extraction</p>
             <div class="flex items-center justify-between mt-3">
-              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPeakPressure(-0.5)}>&minus;</button>
+              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPeakPressure(-0.5)} aria-label="Decrease peak pressure">&minus;</button>
               <span class="font-label text-3xl font-bold text-on-surface tabular-nums">{peakPressure.toFixed(1)}<span class="text-sm text-outline ml-1">bar</span></span>
-              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPeakPressure(0.5)}>+</button>
+              <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustPeakPressure(0.5)} aria-label="Increase peak pressure">+</button>
             </div>
           </div>
         {/if}

@@ -241,6 +241,8 @@
   }
 </script>
 
+<h1 class="sr-only">Dashboard</h1>
+
 <!-- Header row -->
 <div class="flex items-baseline justify-between px-6 pt-6 pb-2">
   <div class="flex items-baseline gap-3">
@@ -362,9 +364,9 @@
       <div class="flex items-center justify-between">
         <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Temp</span>
         <div class="flex items-center gap-2">
-          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(-5)}>&minus;</button>
+          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(-5)} aria-label="Decrease steam temperature">&minus;</button>
           <span class="font-label text-lg font-bold text-on-surface tabular-nums w-14 text-center">{steamTemp}&deg;C</span>
-          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(5)}>+</button>
+          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(5)} aria-label="Increase steam temperature">+</button>
         </div>
       </div>
 
@@ -372,9 +374,9 @@
       <div class="flex items-center justify-between">
         <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Time</span>
         <div class="flex items-center gap-2">
-          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(-5)}>&minus;</button>
+          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(-5)} aria-label="Decrease steam duration">&minus;</button>
           <span class="font-label text-lg font-bold text-on-surface tabular-nums w-14 text-center">{steamDuration}s</span>
-          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(5)}>+</button>
+          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(5)} aria-label="Increase steam duration">+</button>
         </div>
       </div>
 
@@ -450,12 +452,13 @@
       <textarea
         class="flex-1 bg-transparent text-on-surface font-body text-sm leading-relaxed resize-none outline-none placeholder:text-on-surface-variant/50"
         placeholder="Tasting notes, observations, adjustments for next time..."
+        aria-label="Extraction notes"
         bind:value={notesText}
         onfocusout={saveNotes}
       ></textarea>
       <!-- Rating -->
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-1" role="radiogroup" aria-label="Shot rating">
           <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant mr-2">Rating</span>
           {#each [1, 2, 3, 4, 5] as n}
             <button
@@ -465,6 +468,8 @@
               class:bg-surface-container-highest={notesRating < n}
               class:text-on-surface-variant={notesRating < n}
               onclick={() => setRating(n)}
+              aria-label="Rate {n} out of 5"
+              aria-pressed={notesRating >= n}
             >{n}</button>
           {/each}
         </div>

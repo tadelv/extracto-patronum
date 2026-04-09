@@ -84,6 +84,7 @@
                  font-headline text-xl flex items-center justify-center transition-colors
                  hover:border-primary hover:text-primary cursor-pointer"
           onclick={() => adjustDose(-0.5)}
+          aria-label="Decrease dose"
         >
           &minus;
         </button>
@@ -95,6 +96,7 @@
             step="0.5"
             min="10"
             max="30"
+            aria-label="Dose weight in grams"
             class="w-24 bg-transparent font-headline text-5xl font-bold text-on-surface text-center outline-none border-b border-transparent focus:border-primary transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <span class="font-label text-sm text-on-surface-variant ml-1">g</span>
@@ -104,6 +106,7 @@
                  font-headline text-xl flex items-center justify-center transition-colors
                  hover:border-primary hover:text-primary cursor-pointer"
           onclick={() => adjustDose(0.5)}
+          aria-label="Increase dose"
         >
           +
         </button>
@@ -119,6 +122,7 @@
                  font-headline text-xl flex items-center justify-center transition-colors
                  hover:border-primary hover:text-primary cursor-pointer"
           onclick={() => adjustYield(-0.5)}
+          aria-label="Decrease yield"
         >
           &minus;
         </button>
@@ -130,6 +134,7 @@
             step="0.5"
             min="15"
             max="80"
+            aria-label="Yield weight in grams"
             class="w-24 bg-transparent font-headline text-5xl font-bold text-on-surface text-center outline-none border-b border-transparent focus:border-primary transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <span class="font-label text-sm text-on-surface-variant ml-1">g</span>
@@ -139,6 +144,7 @@
                  font-headline text-xl flex items-center justify-center transition-colors
                  hover:border-primary hover:text-primary cursor-pointer"
           onclick={() => adjustYield(0.5)}
+          aria-label="Increase yield"
         >
           +
         </button>
