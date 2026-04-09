@@ -101,8 +101,8 @@
 </script>
 
 <div class="flex h-full">
-  <!-- Left sidebar: step indicator -->
-  <aside class="w-64 bg-surface-container-low p-6 flex flex-col shrink-0">
+  <!-- Left sidebar: step indicator (hidden on mobile) -->
+  <aside class="hidden md:flex w-64 bg-surface-container-low p-6 flex-col shrink-0">
     <div class="mb-8">
       <h2 class="font-headline font-bold text-lg text-on-surface">Master Console</h2>
       <p class="font-label text-xs tracking-widest uppercase text-primary mt-1">Onboarding Phase</p>

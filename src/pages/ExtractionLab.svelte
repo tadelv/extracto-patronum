@@ -298,10 +298,10 @@
     <p class="font-body text-sm text-on-surface-variant mt-1">Tweak your shot parameters. Changes auto-save.</p>
   </div>
 
-  <div class="grid grid-cols-12 gap-4 px-6 pb-6">
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 md:px-6 pb-6">
 
     <!-- Left column: Shot parameters -->
-    <div class="col-span-7 flex flex-col gap-4">
+    <div class="col-span-12 md:col-span-7 flex flex-col gap-4">
 
       <!-- Dose & Yield row -->
       <div class="grid grid-cols-2 gap-4">
@@ -395,7 +395,7 @@
     </div>
 
     <!-- Right column: Coffee + Profile -->
-    <div class="col-span-5 flex flex-col gap-4">
+    <div class="col-span-12 md:col-span-5 flex flex-col gap-4">
 
       <!-- Current coffee card -->
       <div class="glass-panel ghost-border rounded-xl p-5">

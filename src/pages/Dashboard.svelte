@@ -244,7 +244,7 @@
 <h1 class="sr-only">Dashboard</h1>
 
 <!-- Header row -->
-<div class="flex items-baseline justify-between px-6 pt-6 pb-2">
+<div class="flex items-baseline justify-between px-4 md:px-6 pt-6 pb-2">
   <div class="flex items-baseline gap-3">
     <span class="font-headline text-sm font-bold tracking-widest text-primary">{stateLabel}</span>
     {#if coffeeName}
@@ -255,15 +255,15 @@
 </div>
 
 <!-- Main grid -->
-<div class="grid grid-cols-12 gap-4 px-6">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 md:px-6">
 
   <!-- Metrics row -->
-  <div class="col-span-12 flex gap-4">
-    <div class="flex-1"><MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
-    <div class="flex-1"><MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
-    <div class="flex-1"><MetricCard label="Steam Temp" value={ms.steamTemperature.toFixed(1)} unit="°C" /></div>
-    <div class="flex-1"><MetricCard label="Target Yield" value={targetYield} unit="g" href="/lab" /></div>
-    <div class="flex-1"><MetricCard label="Dose" value={targetDose} unit="g" href="/lab" /></div>
+  <div class="col-span-12 flex flex-wrap gap-3 md:gap-4">
+    <div class="flex-1 min-w-[calc(50%-0.75rem)] sm:min-w-0"><MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
+    <div class="flex-1 min-w-[calc(50%-0.75rem)] sm:min-w-0"><MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
+    <div class="flex-1 min-w-[calc(50%-0.75rem)] sm:min-w-0"><MetricCard label="Steam Temp" value={ms.steamTemperature.toFixed(1)} unit="°C" /></div>
+    <div class="flex-1 min-w-[calc(50%-0.75rem)] sm:min-w-0"><MetricCard label="Target Yield" value={targetYield} unit="g" href="/lab" /></div>
+    <div class="flex-1 min-w-[calc(50%-0.75rem)] sm:min-w-0"><MetricCard label="Dose" value={targetDose} unit="g" href="/lab" /></div>
     {#if water.connected}
       <div class="flex-1">
         <div
@@ -287,19 +287,19 @@
   </div>
 
   <!-- Control row -->
-  <div class="col-span-12 grid grid-cols-2 gap-4">
+  <div class="col-span-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
     <MachineControl />
     <ScaleCard />
   </div>
 
   <!-- Dual Gauges -->
-  <div class="col-span-4 glass-panel copper-glow rounded-2xl p-6 flex items-center justify-center">
+  <div class="col-span-12 md:col-span-4 glass-panel copper-glow rounded-2xl p-6 flex items-center justify-center">
     <DualGauge pressure={ms.pressure} maxPressure={12} flow={ms.flow} maxFlow={8} size={260} />
   </div>
 
   <!-- Shot Timer + Brew Control -->
   <div
-    class="col-span-3 glass-panel rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-shadow duration-500"
+    class="col-span-12 sm:col-span-6 md:col-span-3 glass-panel rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-shadow duration-500"
     class:ambient-glow-active={ms.isBrewing}
   >
     <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Shot Timer</span>
@@ -338,7 +338,7 @@
 
   <!-- Steam Panel -->
   <div
-    class="col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 transition-shadow duration-500"
+    class="col-span-12 sm:col-span-6 md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 transition-shadow duration-500"
     class:steam-active-glow={ms.isSteaming}
   >
     <!-- Header with enable toggle -->
@@ -446,7 +446,7 @@
   <ExtractionChart />
 
   <!-- Extraction Notes -->
-  <div class="col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 min-h-48">
+  <div class="col-span-12 md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 min-h-48">
     <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Extraction Notes</span>
     {#if shot}
       <textarea

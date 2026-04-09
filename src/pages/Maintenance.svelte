@@ -121,10 +121,10 @@
     <span class="font-label text-sm text-on-surface-variant ml-3">Loading...</span>
   </div>
 {:else}
-  <div class="grid grid-cols-12 gap-4 px-6">
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 md:px-6">
 
     <!-- Descaling Alert -->
-    <div class="col-span-6 bg-surface-container-low p-6 rounded-xl">
+    <div class="col-span-12 md:col-span-6 bg-surface-container-low p-6 rounded-xl">
       <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Descaling</span>
       <div class="mt-4">
         {#if daysSinceDescale > 30}
@@ -147,7 +147,7 @@
     </div>
 
     <!-- Backflush Routine -->
-    <div class="col-span-6 bg-surface-container-low p-6 rounded-xl">
+    <div class="col-span-12 md:col-span-6 bg-surface-container-low p-6 rounded-xl">
       <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Backflush Routine</span>
       <div class="mt-4 flex flex-col gap-3">
         {#each flushSteps as step, i}
@@ -219,7 +219,7 @@
     </div>
 
     <!-- Cycle Stats -->
-    <div class="col-span-12 grid grid-cols-3 gap-4">
+    <div class="col-span-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
       <MetricCard label="Total Shots" value={totalShotsCount} />
       <MetricCard label="Last Maintenance" value={lastMaintenanceLabel} />
       <MetricCard label="Days Since Descale" value={daysSinceDescale} />

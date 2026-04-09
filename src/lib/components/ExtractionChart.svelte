@@ -87,7 +87,7 @@
   }
 </script>
 
-<div class="col-span-7 glass-panel rounded-2xl p-6 flex flex-col gap-3 min-h-48">
+<div class="col-span-12 md:col-span-7 glass-panel rounded-2xl p-6 flex flex-col gap-3 min-h-48">
   <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Extraction Curve</span>
   {#if hasData}
     <svg viewBox="0 0 {WIDTH} {HEIGHT}" class="w-full h-full" preserveAspectRatio="xMidYMid meet">
