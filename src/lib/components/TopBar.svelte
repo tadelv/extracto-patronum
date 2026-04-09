@@ -55,7 +55,7 @@
     </div>
   </div>
 
-  <nav class="flex items-center gap-1">
+  <nav class="flex items-center gap-1" aria-label="Main navigation">
     {#each navItems as item}
       <a
         href={item.path}
@@ -65,6 +65,7 @@
         class:bg-surface-container={router.location === item.path}
         class:text-on-surface-variant={router.location !== item.path}
         class:hover:text-primary={router.location !== item.path}
+        aria-current={router.location === item.path ? 'page' : undefined}
       >
         {item.label}
       </a>
