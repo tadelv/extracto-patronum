@@ -371,7 +371,7 @@
                       y2={8 + 136 - (tick / 12) * 136}
                       stroke="var(--color-outline)" stroke-opacity="0.1" stroke-width="0.5" />
                     <text x={24} y={8 + 136 - (tick / 12) * 136 + 3}
-                      text-anchor="end" fill="var(--color-primary)" style="font-family: var(--font-label); font-size: 7px;">{tick}</text>
+                      text-anchor="end" fill="var(--color-primary)" class="chart-label">{tick}</text>
                   {/each}
 
                   {#if chartData.pressurePath}
@@ -380,7 +380,7 @@
                   {/if}
                   {#if chartData.flowPath}
                     <polyline points={chartData.flowPath}
-                      fill="none" stroke="#fef3c7" stroke-width="1.5" stroke-linejoin="round" />
+                      fill="none" stroke="var(--color-flow)" stroke-width="1.5" stroke-linejoin="round" />
                   {/if}
                 </svg>
               </div>
@@ -410,3 +410,10 @@
     {/if}
   </div>
 </div>
+
+<style>
+  .chart-label {
+    font-family: var(--font-label, 'Space Grotesk', sans-serif);
+    font-size: 7px;
+  }
+</style>

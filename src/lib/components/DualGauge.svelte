@@ -34,26 +34,26 @@
       stroke-dasharray={outerCirc}
       stroke-dashoffset={outerOffset}
       class="transition-[stroke-dashoffset] duration-150"
-      style="filter: drop-shadow(0 0 12px rgba(255,183,125,0.4));"
+      style="filter: drop-shadow(0 0 12px oklch(from var(--color-primary) l c h / 0.4));"
     />
     <!-- Inner track (flow) -->
     <circle
       cx={cx} cy={cx} r={innerRadius}
       fill="none"
-      stroke="rgba(255,251,235,0.15)"
+      stroke="oklch(from var(--color-flow) l c h / 0.15)"
       stroke-width={innerStroke}
     />
     <!-- Inner value (flow) — thin, light cream-gold -->
     <circle
       cx={cx} cy={cx} r={innerRadius}
       fill="none"
-      stroke="#fef3c7"
+      stroke="var(--color-flow)"
       stroke-width={innerStroke}
       stroke-linecap="round"
       stroke-dasharray={innerCirc}
       stroke-dashoffset={innerOffset}
       class="transition-[stroke-dashoffset] duration-150"
-      style="filter: drop-shadow(0 0 8px rgba(252,211,77,0.3));"
+      style="filter: drop-shadow(0 0 8px oklch(from var(--color-flow) l c h / 0.3));"
     />
   </svg>
 
@@ -62,7 +62,7 @@
     <span class="font-label text-6xl font-bold tracking-tighter text-on-surface">{pressure.toFixed(1)}</span>
     <span class="font-label text-xs tracking-[0.4em] text-primary mt-1 uppercase">Bar Pressure</span>
     <div class="w-16 h-px bg-outline-variant/20 mt-3 mb-3"></div>
-    <span class="font-label text-2xl font-medium" style="color: #fef3c7;">{flow.toFixed(1)}</span>
+    <span class="font-label text-2xl font-medium text-flow">{flow.toFixed(1)}</span>
     <span class="font-label text-[10px] tracking-[0.2em] text-outline uppercase">ml/s Flow</span>
   </div>
 </div>

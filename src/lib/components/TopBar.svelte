@@ -32,7 +32,7 @@
       >
         <span
           class="w-2 h-2 rounded-full"
-          class:bg-emerald-500={$machineState.state !== 'disconnected'}
+          class:bg-status-connected={$machineState.state !== 'disconnected'}
           class:bg-outline={$machineState.state === 'disconnected'}
           class:animate-pulse={$machineState.state !== 'disconnected'}
         ></span>
@@ -47,7 +47,7 @@
       >
         <span
           class="w-2 h-2 rounded-full"
-          class:bg-emerald-500={$scaleState.connected}
+          class:bg-status-connected={$scaleState.connected}
           class:bg-outline={!$scaleState.connected}
         ></span>
         Scale

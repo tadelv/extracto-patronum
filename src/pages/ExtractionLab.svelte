@@ -364,11 +364,11 @@
         <!-- Peak Pressure or Extraction Flow (based on profile type) -->
         {#if isFlowProfile}
           <div class="glass-panel ghost-border rounded-xl p-5">
-            <span class="font-label text-xs tracking-widest uppercase" style="color: #fef3c7;">Extraction Flow</span>
+            <span class="font-label text-xs tracking-widest uppercase text-flow">Extraction Flow</span>
             <p class="font-body text-[10px] text-on-surface-variant mt-0.5">Target flow during extraction</p>
             <div class="flex items-center justify-between mt-3">
               <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustExtractionFlow(-0.1)} aria-label="Decrease extraction flow">&minus;</button>
-              <span class="font-label text-3xl font-bold tabular-nums" style="color: #fef3c7;">{extractionFlow.toFixed(1)}<span class="text-sm text-outline ml-1">ml/s</span></span>
+              <span class="font-label text-3xl font-bold tabular-nums text-flow">{extractionFlow.toFixed(1)}<span class="text-sm text-outline ml-1">ml/s</span></span>
               <button class="w-9 h-9 rounded-lg bg-surface-container-highest text-on-surface font-bold flex items-center justify-center tactile-sink" onclick={() => adjustExtractionFlow(0.1)} aria-label="Increase extraction flow">+</button>
             </div>
           </div>
@@ -526,7 +526,7 @@
                     <span class="font-label text-[10px] text-on-surface-variant tabular-nums">{step.pressure}bar</span>
                   {/if}
                   {#if step.flow != null && step.flow > 0}
-                    <span class="font-label text-[10px] tabular-nums" style="color: #fef3c7;">{step.flow}ml/s</span>
+                    <span class="font-label text-[10px] tabular-nums text-flow">{step.flow}ml/s</span>
                   {/if}
                   {#if step.temperature != null}
                     <span class="font-label text-[10px] text-primary tabular-nums">{step.temperature}&deg;</span>

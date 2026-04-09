@@ -42,6 +42,8 @@
   --color-inverse-on-surface: #33302d;
   --color-inverse-primary: #904d00;
   --color-surface-tint: #ffb77d;
+  --color-flow: #fef3c7;
+  --color-status-connected: #34d399;
   --font-headline: 'Manrope', sans-serif;
   --font-body: 'Manrope', sans-serif;
   --font-label: 'Space Grotesk', monospace;

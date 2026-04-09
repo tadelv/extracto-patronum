@@ -112,7 +112,7 @@
       {#each flowTicks as tick}
         <text
           x={WIDTH - PADDING.right + 4} y={yPos(tick, FLOW_MAX) + 3}
-          text-anchor="start" class="chart-label" fill="#fef3c7"
+          text-anchor="start" class="chart-label" fill="var(--color-flow)"
         >{tick}</text>
       {/each}
 
@@ -126,14 +126,14 @@
 
       <!-- Axis unit labels -->
       <text x={4} y={PADDING.top - 2} class="chart-label" fill="var(--color-primary)">bar</text>
-      <text x={WIDTH - 4} y={PADDING.top - 2} text-anchor="end" class="chart-label" fill="#fef3c7">ml/s</text>
+      <text x={WIDTH - 4} y={PADDING.top - 2} text-anchor="end" class="chart-label" fill="var(--color-flow)">ml/s</text>
 
       <!-- Data lines -->
       {#if pressurePath}
         <polyline points={pressurePath} fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
       {/if}
       {#if flowPath}
-        <polyline points={flowPath} fill="none" stroke="#fef3c7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+        <polyline points={flowPath} fill="none" stroke="var(--color-flow)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
       {/if}
     </svg>
   {:else}

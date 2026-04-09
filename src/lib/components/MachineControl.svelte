@@ -29,7 +29,7 @@
 
   let dotColor = $derived(() => {
     const cat = stateCategory()
-    if (cat === 'idle' || cat === 'active') return 'bg-green-500'
+    if (cat === 'idle' || cat === 'active') return 'bg-status-connected'
     if (cat === 'heating') return 'bg-primary animate-pulse'
     return 'bg-outline'
   })
