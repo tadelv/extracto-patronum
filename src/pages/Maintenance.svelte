@@ -121,7 +121,7 @@
     <span class="font-label text-sm text-on-surface-variant ml-3">Loading...</span>
   </div>
 {:else}
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 md:px-6">
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 md:px-6 pb-6">
 
     <!-- Descaling Alert -->
     <div class="col-span-12 md:col-span-6 bg-surface-container-low p-6 rounded-xl">
@@ -226,5 +226,3 @@
     </div>
   </div>
 {/if}
-
-<div class="h-6"></div>

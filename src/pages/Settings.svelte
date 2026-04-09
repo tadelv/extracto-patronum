@@ -187,7 +187,7 @@
       {saveError}
     </div>
   {/if}
-  <div class="flex flex-col gap-4 px-6">
+  <div class="flex flex-col gap-4 px-6 pb-6">
 
     <!-- Interface Mode — hidden for now, TODO: implement Operator vs Tinkerer views -->
 
@@ -322,5 +322,3 @@
     </div>
   </div>
 {/if}
-
-<div class="h-6"></div>

@@ -255,7 +255,7 @@
 </div>
 
 <!-- Main grid -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 md:px-6">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 md:px-6 pb-6">
 
   <!-- Metrics row -->
   <div class="col-span-12 flex flex-wrap gap-3 md:gap-4">
@@ -364,9 +364,9 @@
       <div class="flex items-center justify-between">
         <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Temp</span>
         <div class="flex items-center gap-2">
-          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(-5)} aria-label="Decrease steam temperature">&minus;</button>
+          <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(-5)} aria-label="Decrease steam temperature">&minus;</button>
           <span class="font-label text-lg font-bold text-on-surface tabular-nums w-14 text-center">{steamTemp}&deg;C</span>
-          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(5)} aria-label="Increase steam temperature">+</button>
+          <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(5)} aria-label="Increase steam temperature">+</button>
         </div>
       </div>
 
@@ -374,9 +374,9 @@
       <div class="flex items-center justify-between">
         <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Time</span>
         <div class="flex items-center gap-2">
-          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(-5)} aria-label="Decrease steam duration">&minus;</button>
+          <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(-5)} aria-label="Decrease steam duration">&minus;</button>
           <span class="font-label text-lg font-bold text-on-surface tabular-nums w-14 text-center">{steamDuration}s</span>
-          <button class="w-7 h-7 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(5)} aria-label="Increase steam duration">+</button>
+          <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(5)} aria-label="Increase steam duration">+</button>
         </div>
       </div>
 
@@ -385,7 +385,7 @@
         <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Flow</span>
         <div class="flex gap-1">
           <button
-            class="px-3 py-1 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
+            class="px-3 py-2 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
             class:bg-primary={steamFlow === 0.6}
             class:text-on-primary={steamFlow === 0.6}
             class:bg-surface-container-highest={steamFlow !== 0.6}
@@ -393,7 +393,7 @@
             onclick={() => steamFlow = 0.6}
           >Smooth</button>
           <button
-            class="px-3 py-1 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
+            class="px-3 py-2 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
             class:bg-primary={steamFlow === 1.2}
             class:text-on-primary={steamFlow === 1.2}
             class:bg-surface-container-highest={steamFlow !== 1.2}
@@ -484,9 +484,6 @@
     {/if}
   </div>
 </div>
-
-<!-- Bottom padding -->
-<div class="h-6"></div>
 
 <style>
   @keyframes pulse-bar {
