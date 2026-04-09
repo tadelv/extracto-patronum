@@ -5,7 +5,7 @@
   let ms = $derived($machineState)
   let loading = $state(false)
 
-  let stateCategory = $derived(() => {
+  let stateCategory = $derived.by(() => {
     const s = ms.state
     if (!s || s === 'disconnected') return 'disconnected'
     if (s === 'sleeping') return 'sleeping'
@@ -14,7 +14,7 @@
     return 'active'
   })
 
-  let displayLabel = $derived(() => {
+  let displayLabel = $derived.by(() => {
     const s = ms.state
     if (!s || s === 'disconnected') return 'Disconnected'
     if (s === 'sleeping') return 'Sleeping'
@@ -27,10 +27,9 @@
     return s.charAt(0).toUpperCase() + s.slice(1)
   })
 
-  let dotColor = $derived(() => {
-    const cat = stateCategory()
-    if (cat === 'idle' || cat === 'active') return 'bg-status-connected'
-    if (cat === 'heating') return 'bg-primary animate-pulse'
+  let dotColor = $derived.by(() => {
+    if (stateCategory === 'idle' || stateCategory === 'active') return 'bg-status-connected'
+    if (stateCategory === 'heating') return 'bg-primary animate-pulse'
     return 'bg-outline'
   })
 
@@ -60,24 +59,24 @@
 <div class="glass-panel rounded-2xl px-5 py-4 flex items-center justify-between gap-4">
   <!-- Left: status dot + label -->
   <div class="flex items-center gap-3">
-    <div class="w-2.5 h-2.5 rounded-full {dotColor()}"></div>
+    <div class="w-2.5 h-2.5 rounded-full {dotColor}"></div>
     <span class="font-label text-sm tracking-wider uppercase"
-      class:text-on-surface={stateCategory() === 'idle' || stateCategory() === 'active' || stateCategory() === 'heating'}
-      class:text-on-surface-variant={stateCategory() === 'sleeping'}
-      class:text-outline={stateCategory() === 'disconnected'}
-    >{displayLabel()}</span>
+      class:text-on-surface={stateCategory === 'idle' || stateCategory === 'active' || stateCategory === 'heating'}
+      class:text-on-surface-variant={stateCategory === 'sleeping'}
+      class:text-outline={stateCategory === 'disconnected'}
+    >{displayLabel}</span>
   </div>
 
   <!-- Right: action button -->
   <div class="flex items-center">
-    {#if stateCategory() === 'sleeping'}
+    {#if stateCategory === 'sleeping'}
       <button
         class="px-5 py-2 gradient-cta text-on-primary-fixed font-label text-xs font-bold uppercase tracking-widest rounded-sm tactile-sink transition-opacity"
         class:opacity-50={loading}
         disabled={loading}
         onclick={wake}
       >Wake</button>
-    {:else if stateCategory() === 'idle'}
+    {:else if stateCategory === 'idle'}
       <button
         class="px-5 py-2 rounded-sm ghost-border font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors tactile-sink"
         class:opacity-50={loading}

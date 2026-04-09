@@ -92,7 +92,7 @@
     const startTime = Date.now() - timerMs
     timerInterval = setInterval(() => {
       timerMs = Date.now() - startTime
-    }, 50)
+    }, 100)
   }
 
   function stopTimer() {
