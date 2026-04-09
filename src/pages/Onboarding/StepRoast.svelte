@@ -129,16 +129,21 @@
         <label class="font-label text-xs tracking-widest uppercase text-on-surface-variant mb-2 block" for="bean-processing">
           Processing Method
         </label>
-        <select
-          id="bean-processing"
-          bind:value={beanProcessing}
-          class="w-full bg-transparent border-b border-outline-variant font-headline text-lg text-on-surface
-                 focus:border-primary focus:outline-none pb-2 transition-colors appearance-none cursor-pointer"
-        >
-          {#each processingMethods as method}
-            <option value={method} class="bg-surface-container text-on-surface">{method}</option>
-          {/each}
-        </select>
+        <div class="relative">
+          <select
+            id="bean-processing"
+            bind:value={beanProcessing}
+            class="w-full bg-transparent border-b border-outline-variant font-headline text-lg text-on-surface
+                   focus:border-primary focus:outline-none pb-2 pr-8 transition-colors appearance-none cursor-pointer"
+          >
+            {#each processingMethods as method}
+              <option value={method} class="bg-surface-container text-on-surface">{method}</option>
+            {/each}
+          </select>
+          <svg class="absolute right-0 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+          </svg>
+        </div>
       </div>
     </div>
   </div>
