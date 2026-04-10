@@ -255,10 +255,10 @@
 </div>
 
 <!-- Main grid -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 md:px-6 pb-6">
+<div class="dashboard-grid gap-4 px-4 md:px-6 pb-6">
 
-  <!-- Metrics row -->
-  <div class="col-span-12 flex flex-wrap gap-3 md:gap-4">
+  <!-- Row 1: Metrics (auto height) -->
+  <div class="flex flex-wrap gap-3 md:gap-4">
     <div class="flex-1 min-w-[calc(50%-0.75rem)] sm:min-w-0"><MetricCard label="Mix Temp" value={ms.mixTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
     <div class="flex-1 min-w-[calc(50%-0.75rem)] sm:min-w-0"><MetricCard label="Group Temp" value={ms.groupTemperature.toFixed(1)} unit="°C" href="/lab" /></div>
     <div class="flex-1 min-w-[calc(50%-0.75rem)] sm:min-w-0"><MetricCard label="Steam Temp" value={ms.steamTemperature.toFixed(1)} unit="°C" /></div>
@@ -286,206 +286,225 @@
     {/if}
   </div>
 
-  <!-- Dual Gauges -->
-  <div class="col-span-12 md:col-span-4 glass-panel copper-glow rounded-2xl p-6 flex items-center justify-center">
-    <DualGauge pressure={ms.pressure} maxPressure={12} flow={ms.flow} maxFlow={8} size={260} />
-  </div>
+  <!-- Row 2: Gauges + Timer (minmax compression) -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0">
+    <!-- Dual Gauges -->
+    <div class="col-span-12 md:col-span-4 glass-panel copper-glow rounded-2xl p-6 flex items-center justify-center min-h-0">
+      <DualGauge pressure={ms.pressure} maxPressure={12} flow={ms.flow} maxFlow={8} size={260} />
+    </div>
 
-  <!-- Shot Timer + Brew Control -->
-  <div
-    class="col-span-12 sm:col-span-6 md:col-span-3 glass-panel rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-shadow duration-500"
-    class:ambient-glow-active={ms.isBrewing}
-  >
-    <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Shot Timer</span>
-    <span class="font-mono text-5xl font-bold text-on-surface tabular-nums">{timerDisplay}</span>
-    {#if timerRunning}
-      <div class="flex gap-1.5 items-center h-4">
-        {#each [0, 1, 2, 3, 4] as i}
-          <div
-            class="w-1 rounded-full bg-primary"
-            style="animation: pulse-bar 0.8s ease-in-out {i * 0.12}s infinite alternate; height: 8px;"
-          ></div>
-        {/each}
-      </div>
-    {:else}
-      <div class="h-4"></div>
-    {/if}
-
-    {#if !hasGHC}
-      {#if ms.isBrewing}
-        <button
-          class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
-          class:opacity-50={brewLoading}
-          disabled={brewLoading}
-          onclick={stopEspresso}
-        >Stop</button>
+    <!-- Shot Timer + Brew Control -->
+    <div
+      class="col-span-12 sm:col-span-6 md:col-span-3 glass-panel rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-shadow duration-500 min-h-0"
+      class:ambient-glow-active={ms.isBrewing}
+    >
+      <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Shot Timer</span>
+      <span class="font-mono text-5xl font-bold text-on-surface tabular-nums">{timerDisplay}</span>
+      {#if timerRunning}
+        <div class="flex gap-1.5 items-center h-4">
+          {#each [0, 1, 2, 3, 4] as i}
+            <div
+              class="w-1 rounded-full bg-primary"
+              style="animation: pulse-bar 0.8s ease-in-out {i * 0.12}s infinite alternate; height: 8px;"
+            ></div>
+          {/each}
+        </div>
       {:else}
-        <button
-          class="w-full py-3 gradient-cta text-on-primary-fixed font-label font-bold uppercase tracking-widest rounded-sm tactile-sink transition-opacity"
-          class:opacity-50={brewLoading || !ms.isIdle}
-          disabled={brewLoading || !ms.isIdle}
-          onclick={startEspresso}
-        >Start Shot</button>
+        <div class="h-4"></div>
       {/if}
-    {/if}
+
+      {#if !hasGHC}
+        {#if ms.isBrewing}
+          <button
+            class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
+            class:opacity-50={brewLoading}
+            disabled={brewLoading}
+            onclick={stopEspresso}
+          >Stop</button>
+        {:else}
+          <button
+            class="w-full py-3 gradient-cta text-on-primary-fixed font-label font-bold uppercase tracking-widest rounded-sm tactile-sink transition-opacity"
+            class:opacity-50={brewLoading || !ms.isIdle}
+            disabled={brewLoading || !ms.isIdle}
+            onclick={startEspresso}
+          >Start Shot</button>
+        {/if}
+      {/if}
+    </div>
   </div>
 
-  <!-- Control row -->
-  <div class="col-span-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <!-- Row 3: Controls (auto height) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <MachineControl />
     <ScaleCard />
   </div>
 
-  <!-- Steam Panel -->
-  <div
-    class="col-span-12 sm:col-span-6 md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 transition-shadow duration-500"
-    class:steam-active-glow={ms.isSteaming}
-  >
-    <!-- Header with enable toggle -->
-    <div class="flex items-center justify-between">
-      <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Steam Control</span>
-      <button
-        class="relative w-12 h-6 rounded-full transition-colors tactile-sink"
-        class:bg-primary={steamEnabled}
-        class:bg-surface-container-highest={!steamEnabled}
-        onclick={() => { steamEnabled = !steamEnabled; applySteamSettings() }}
-        aria-label="Toggle steam"
-      >
-        <div
-          class="absolute top-1 w-4 h-4 rounded-full bg-on-surface transition-transform duration-200"
-          class:translate-x-1={!steamEnabled}
-          class:translate-x-7={steamEnabled}
-        ></div>
-      </button>
-    </div>
-
-    {#if steamEnabled}
-      <!-- Temperature -->
+  <!-- Row 4: Steam (minmax compression) -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0">
+    <!-- Steam Panel -->
+    <div
+      class="col-span-12 sm:col-span-6 md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 transition-shadow duration-500 min-h-0"
+      class:steam-active-glow={ms.isSteaming}
+    >
+      <!-- Header with enable toggle -->
       <div class="flex items-center justify-between">
-        <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Temp</span>
-        <div class="flex items-center gap-2">
-          <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(-5)} aria-label="Decrease steam temperature">&minus;</button>
-          <span class="font-label text-lg font-bold text-on-surface tabular-nums w-14 text-center">{steamTemp}&deg;C</span>
-          <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(5)} aria-label="Increase steam temperature">+</button>
-        </div>
+        <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Steam Control</span>
+        <button
+          class="relative w-12 h-6 rounded-full transition-colors tactile-sink"
+          class:bg-primary={steamEnabled}
+          class:bg-surface-container-highest={!steamEnabled}
+          onclick={() => { steamEnabled = !steamEnabled; applySteamSettings() }}
+          aria-label="Toggle steam"
+        >
+          <div
+            class="absolute top-1 w-4 h-4 rounded-full bg-on-surface transition-transform duration-200"
+            class:translate-x-1={!steamEnabled}
+            class:translate-x-7={steamEnabled}
+          ></div>
+        </button>
       </div>
 
-      <!-- Duration -->
-      <div class="flex items-center justify-between">
-        <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Time</span>
-        <div class="flex items-center gap-2">
-          <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(-5)} aria-label="Decrease steam duration">&minus;</button>
-          <span class="font-label text-lg font-bold text-on-surface tabular-nums w-14 text-center">{steamDuration}s</span>
-          <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(5)} aria-label="Increase steam duration">+</button>
-        </div>
-      </div>
-
-      <!-- Flow -->
-      <div class="flex items-center justify-between">
-        <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Flow</span>
-        <div class="flex gap-1">
-          <button
-            class="px-3 py-2 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
-            class:bg-primary={steamFlow === 0.6}
-            class:text-on-primary={steamFlow === 0.6}
-            class:bg-surface-container-highest={steamFlow !== 0.6}
-            class:text-on-surface-variant={steamFlow !== 0.6}
-            onclick={() => steamFlow = 0.6}
-          >Smooth</button>
-          <button
-            class="px-3 py-2 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
-            class:bg-primary={steamFlow === 1.2}
-            class:text-on-primary={steamFlow === 1.2}
-            class:bg-surface-container-highest={steamFlow !== 1.2}
-            class:text-on-surface-variant={steamFlow !== 1.2}
-            onclick={() => steamFlow = 1.2}
-          >Fast</button>
-        </div>
-      </div>
-
-      <!-- Live steam temp -->
-      {#if ms.isSteaming}
+      {#if steamEnabled}
+        <!-- Temperature -->
         <div class="flex items-center justify-between">
-          <span class="font-label text-xs tracking-wider uppercase text-primary">Live</span>
-          <span class="font-label text-lg font-bold text-primary tabular-nums">{ms.steamTemperature.toFixed(1)}&deg;C</span>
+          <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Temp</span>
+          <div class="flex items-center gap-2">
+            <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(-5)} aria-label="Decrease steam temperature">&minus;</button>
+            <span class="font-label text-lg font-bold text-on-surface tabular-nums w-14 text-center">{steamTemp}&deg;C</span>
+            <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamTemp(5)} aria-label="Increase steam temperature">+</button>
+          </div>
         </div>
-      {/if}
-    {:else}
-      <p class="font-body text-sm text-outline py-2">Steam disabled. Toggle on to configure.</p>
-    {/if}
 
-    <!-- Buttons -->
-    <div class="flex gap-2 mt-auto">
-      {#if ms.isSteaming}
-        <div class="flex-1">
-          <button
-            class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
-            class:opacity-50={steamLoading}
-            disabled={steamLoading}
-            onclick={stopSteam}
-          >Stop Steam</button>
+        <!-- Duration -->
+        <div class="flex items-center justify-between">
+          <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Time</span>
+          <div class="flex items-center gap-2">
+            <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(-5)} aria-label="Decrease steam duration">&minus;</button>
+            <span class="font-label text-lg font-bold text-on-surface tabular-nums w-14 text-center">{steamDuration}s</span>
+            <button class="w-10 h-10 rounded-md bg-surface-container-highest text-on-surface text-sm flex items-center justify-center tactile-sink" onclick={() => adjustSteamDuration(5)} aria-label="Increase steam duration">+</button>
+          </div>
         </div>
-      {:else}
-        {#if !hasGHC}
-          <div class="flex-1">
-            <GradientButton label="Start Steam" disabled={steamLoading || !steamEnabled || !ms.isIdle} onclick={startSteam} />
+
+        <!-- Flow -->
+        <div class="flex items-center justify-between">
+          <span class="font-label text-xs tracking-wider uppercase text-on-surface-variant">Flow</span>
+          <div class="flex gap-1">
+            <button
+              class="px-3 py-2 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
+              class:bg-primary={steamFlow === 0.6}
+              class:text-on-primary={steamFlow === 0.6}
+              class:bg-surface-container-highest={steamFlow !== 0.6}
+              class:text-on-surface-variant={steamFlow !== 0.6}
+              onclick={() => steamFlow = 0.6}
+            >Smooth</button>
+            <button
+              class="px-3 py-2 rounded-md font-label text-xs tracking-wider uppercase transition-colors tactile-sink"
+              class:bg-primary={steamFlow === 1.2}
+              class:text-on-primary={steamFlow === 1.2}
+              class:bg-surface-container-highest={steamFlow !== 1.2}
+              class:text-on-surface-variant={steamFlow !== 1.2}
+              onclick={() => steamFlow = 1.2}
+            >Fast</button>
+          </div>
+        </div>
+
+        <!-- Live steam temp -->
+        {#if ms.isSteaming}
+          <div class="flex items-center justify-between">
+            <span class="font-label text-xs tracking-wider uppercase text-primary">Live</span>
+            <span class="font-label text-lg font-bold text-primary tabular-nums">{ms.steamTemperature.toFixed(1)}&deg;C</span>
           </div>
         {/if}
+      {:else}
+        <p class="font-body text-sm text-outline py-2">Steam disabled. Toggle on to configure.</p>
       {/if}
-      <button
-        class="px-4 py-3 rounded-sm bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink transition-opacity text-sm"
-        class:opacity-50={rinseLoading}
-        disabled={rinseLoading}
-        onclick={startRinse}
-      >Rinse</button>
+
+      <!-- Buttons -->
+      <div class="flex gap-2 mt-auto">
+        {#if ms.isSteaming}
+          <div class="flex-1">
+            <button
+              class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
+              class:opacity-50={steamLoading}
+              disabled={steamLoading}
+              onclick={stopSteam}
+            >Stop Steam</button>
+          </div>
+        {:else}
+          {#if !hasGHC}
+            <div class="flex-1">
+              <GradientButton label="Start Steam" disabled={steamLoading || !steamEnabled || !ms.isIdle} onclick={startSteam} />
+            </div>
+          {/if}
+        {/if}
+        <button
+          class="px-4 py-3 rounded-sm bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink transition-opacity text-sm"
+          class:opacity-50={rinseLoading}
+          disabled={rinseLoading}
+          onclick={startRinse}
+        >Rinse</button>
+      </div>
     </div>
   </div>
 
-  <!-- Bottom row -->
-  <!-- Extraction Curve -->
-  <ExtractionChart />
+  <!-- Row 5: Chart + Notes (minmax compression) -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0">
+    <!-- Extraction Curve -->
+    <ExtractionChart />
 
-  <!-- Extraction Notes -->
-  <div class="col-span-12 md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 min-h-48">
-    <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Extraction Notes</span>
-    {#if shot}
-      <textarea
-        class="flex-1 bg-transparent text-on-surface font-body text-sm leading-relaxed resize-none outline-none placeholder:text-on-surface-variant/50"
-        placeholder="Tasting notes, observations, adjustments for next time..."
-        aria-label="Extraction notes"
-        bind:value={notesText}
-        onfocusout={saveNotes}
-      ></textarea>
-      <!-- Rating -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-1" role="radiogroup" aria-label="Shot rating">
-          <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant mr-2">Rating</span>
-          {#each [1, 2, 3, 4, 5] as n}
-            <button
-              class="w-7 h-7 rounded-md font-label text-xs font-bold transition-colors tactile-sink"
-              class:bg-primary={notesRating >= n}
-              class:text-on-primary={notesRating >= n}
-              class:bg-surface-container-highest={notesRating < n}
-              class:text-on-surface-variant={notesRating < n}
-              onclick={() => setRating(n)}
-              aria-label="Rate {n} out of 5"
-              aria-pressed={notesRating >= n}
-            >{n}</button>
-          {/each}
+    <!-- Extraction Notes -->
+    <div class="col-span-12 md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 min-h-0">
+      <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Extraction Notes</span>
+      {#if shot}
+        <textarea
+          class="flex-1 bg-transparent text-on-surface font-body text-sm leading-relaxed resize-none outline-none placeholder:text-on-surface-variant/50"
+          placeholder="Tasting notes, observations, adjustments for next time..."
+          aria-label="Extraction notes"
+          bind:value={notesText}
+          onfocusout={saveNotes}
+        ></textarea>
+        <!-- Rating -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1" role="radiogroup" aria-label="Shot rating">
+            <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant mr-2">Rating</span>
+            {#each [1, 2, 3, 4, 5] as n}
+              <button
+                class="w-7 h-7 rounded-md font-label text-xs font-bold transition-colors tactile-sink"
+                class:bg-primary={notesRating >= n}
+                class:text-on-primary={notesRating >= n}
+                class:bg-surface-container-highest={notesRating < n}
+                class:text-on-surface-variant={notesRating < n}
+                onclick={() => setRating(n)}
+                aria-label="Rate {n} out of 5"
+                aria-pressed={notesRating >= n}
+              >{n}</button>
+            {/each}
+          </div>
+          {#if notesSaved}
+            <span class="font-label text-xs text-primary">Saved</span>
+          {/if}
         </div>
-        {#if notesSaved}
-          <span class="font-label text-xs text-primary">Saved</span>
-        {/if}
-      </div>
-    {:else}
-      <div class="flex-1 flex items-center justify-center">
-        <span class="font-body text-sm text-outline">Pull a shot to add notes</span>
-      </div>
-    {/if}
+      {:else}
+        <div class="flex-1 flex items-center justify-center">
+          <span class="font-body text-sm text-outline">Pull a shot to add notes</span>
+        </div>
+      {/if}
+    </div>
   </div>
 </div>
 
 <style>
+  .dashboard-grid {
+    display: grid;
+    min-height: 100%;
+    grid-template-rows:
+      auto                   /* metrics */
+      minmax(14rem, 1fr)     /* gauges + timer */
+      auto                   /* controls */
+      minmax(10rem, auto)    /* steam */
+      minmax(10rem, 1fr);    /* chart + notes */
+  }
+
   @keyframes pulse-bar {
     from { height: 4px; opacity: 0.4; }
     to { height: 16px; opacity: 1; }
