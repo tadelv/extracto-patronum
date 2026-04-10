@@ -55,7 +55,7 @@
     </div>
   </div>
 
-  <nav class="flex items-center gap-1" aria-label="Main navigation">
+  <nav class="hidden md:flex items-center gap-1" aria-label="Main navigation">
     {#each navItems as item}
       <a
         href={item.path}

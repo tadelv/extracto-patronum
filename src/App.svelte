@@ -5,6 +5,7 @@
   import { loadWorkflow } from './lib/stores/workflow.js'
   import { loadMachineInfo } from './lib/stores/machineInfo.js'
   import TopBar from './lib/components/TopBar.svelte'
+  import BottomNav from './lib/components/BottomNav.svelte'
 
   import Dashboard from './pages/Dashboard.svelte'
   import ExtractionLab from './pages/ExtractionLab.svelte'
@@ -23,7 +24,7 @@
     '*': Dashboard,
   }
 
-  let loading = true
+  let loading = $state(true)
   let mainEl = $state(null)
   let showScrollFade = $state(false)
 
@@ -77,17 +78,18 @@
 </script>
 
 {#if loading}
-  <div class="h-screen bg-background flex items-center justify-center">
+  <div class="h-dvh bg-background flex items-center justify-center">
     <div class="text-primary font-label text-sm tracking-widest uppercase animate-pulse">
       Initializing Console...
     </div>
   </div>
 {:else}
-  <div class="h-screen bg-background flex flex-col overflow-hidden relative">
+  <div class="h-dvh bg-background flex flex-col overflow-hidden relative">
     <TopBar />
     <main class="flex-1 overflow-y-auto" bind:this={mainEl} onscroll={scheduleScrollCheck}>
       <Router {routes} />
     </main>
+    <BottomNav />
     <div
       class="absolute bottom-0 left-0 right-0 h-12 pointer-events-none transition-opacity duration-300 bg-gradient-to-t from-background to-transparent"
       class:opacity-0={!showScrollFade}

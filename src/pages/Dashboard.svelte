@@ -286,7 +286,13 @@
     {/if}
   </div>
 
-  <!-- Row 2: Gauges + Timer (minmax compression) -->
+  <!-- Row 2: Controls (auto height) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <MachineControl />
+    <ScaleCard />
+  </div>
+
+  <!-- Row 3: Gauges + Timer + Steam (minmax compression) -->
   <div class="grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0">
     <!-- Dual Gauges -->
     <div class="col-span-12 md:col-span-4 glass-panel copper-glow rounded-2xl p-6 flex items-center justify-center min-h-0">
@@ -331,16 +337,7 @@
         {/if}
       {/if}
     </div>
-  </div>
 
-  <!-- Row 3: Controls (auto height) -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <MachineControl />
-    <ScaleCard />
-  </div>
-
-  <!-- Row 4: Steam (minmax compression) -->
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0">
     <!-- Steam Panel -->
     <div
       class="col-span-12 sm:col-span-6 md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 transition-shadow duration-500 min-h-0"
@@ -447,7 +444,7 @@
     </div>
   </div>
 
-  <!-- Row 5: Chart + Notes (minmax compression) -->
+  <!-- Row 4: Chart + Notes (minmax compression) -->
   <div class="grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0">
     <!-- Extraction Curve -->
     <ExtractionChart />
@@ -499,9 +496,8 @@
     min-height: 100%;
     grid-template-rows:
       auto                   /* metrics */
-      minmax(14rem, 1fr)     /* gauges + timer */
       auto                   /* controls */
-      minmax(10rem, auto)    /* steam */
+      minmax(14rem, 1fr)     /* gauges + timer + steam */
       minmax(10rem, 1fr);    /* chart + notes */
   }
 
