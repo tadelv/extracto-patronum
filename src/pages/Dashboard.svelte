@@ -286,12 +286,6 @@
     {/if}
   </div>
 
-  <!-- Control row -->
-  <div class="col-span-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <MachineControl />
-    <ScaleCard />
-  </div>
-
   <!-- Dual Gauges -->
   <div class="col-span-12 md:col-span-4 glass-panel copper-glow rounded-2xl p-6 flex items-center justify-center">
     <DualGauge pressure={ms.pressure} maxPressure={12} flow={ms.flow} maxFlow={8} size={260} />
@@ -334,6 +328,12 @@
         >Start Shot</button>
       {/if}
     {/if}
+  </div>
+
+  <!-- Control row -->
+  <div class="col-span-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <MachineControl />
+    <ScaleCard />
   </div>
 
   <!-- Steam Panel -->
