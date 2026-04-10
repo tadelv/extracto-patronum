@@ -264,6 +264,20 @@
       </div>
     </div>
 
+    <!-- Streamline-Bridge Settings -->
+    <div class="bg-surface-container-low p-6 rounded-xl">
+      <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Streamline-Bridge</span>
+      <div class="flex items-center justify-between mt-4">
+        <p class="font-body text-sm text-on-surface-variant">Open Bridge settings</p>
+        <a
+          href={`http://${window.location.host.split(':')[0]}:8080/api/v1/plugins/settings.reaplugin/ui?backName=Extracto-Patronum`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-6 py-3 rounded-lg bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink text-sm whitespace-nowrap inline-block"
+        >Open Settings</a>
+      </div>
+    </div>
+
     <!-- Wake Schedules -->
     <div class="bg-surface-container-low p-6 rounded-xl">
       <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Wake Schedules</span>
