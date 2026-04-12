@@ -1,9 +1,9 @@
 {
   "id": "extracto-patronum",
   "name": "Extracto Patronum",
-  "description": "The Master Roaster's Console",
+  "description": "The Master Brewer's Console",
   "version": "0.1.0",
   "author": "Vid Tadel",
-  "homepage": "https://github.com/vidtadel/extracto-patronum",
+  "homepage": "https://github.com/tadelv/extracto-patronum",
   "minBridgeVersion": "0.5.0"
 }

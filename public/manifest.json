@@ -1,7 +1,7 @@
 {
   "name": "Extracto Patronum",
   "short_name": "Extracto",
-  "description": "The Master Roaster's Console",
+  "description": "The Master Brewer's Console",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#161311",
