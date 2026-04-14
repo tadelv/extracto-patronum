@@ -25,35 +25,6 @@
   }
 
   let loading = $state(true)
-  let mainEl = $state(null)
-  let showScrollFade = $state(false)
-
-  let rafId = 0
-
-  function checkScroll() {
-    if (!mainEl) return
-    const { scrollTop, scrollHeight, clientHeight } = mainEl
-    showScrollFade = scrollHeight - scrollTop - clientHeight > 20
-  }
-
-  function scheduleScrollCheck() {
-    if (rafId) return
-    rafId = requestAnimationFrame(() => {
-      checkScroll()
-      rafId = 0
-    })
-  }
-
-  $effect(() => {
-    if (!mainEl) return
-    checkScroll()
-    const observer = new ResizeObserver(checkScroll)
-    observer.observe(mainEl)
-    return () => {
-      cancelAnimationFrame(rafId)
-      observer.disconnect()
-    }
-  })
 
   onMount(async () => {
     try {
@@ -84,16 +55,11 @@
     </div>
   </div>
 {:else}
-  <div class="h-dvh bg-background flex flex-col overflow-hidden relative">
+  <div class="h-dvh bg-background flex flex-col overflow-hidden">
     <TopBar />
-    <main class="flex-1 overflow-y-auto" bind:this={mainEl} onscroll={scheduleScrollCheck}>
+    <main class="flex-1 overflow-y-auto">
       <Router {routes} />
     </main>
     <BottomNav />
-    <div
-      class="absolute bottom-0 left-0 right-0 h-12 pointer-events-none transition-opacity duration-300 bg-gradient-to-t from-background to-transparent"
-      class:opacity-0={!showScrollFade}
-      aria-hidden="true"
-    ></div>
   </div>
 {/if}

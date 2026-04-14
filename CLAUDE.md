@@ -21,3 +21,6 @@ Svelte 5 SPA with hash-based routing (svelte-spa-router), Tailwind CSS v4, Vite 
 - Fonts: Manrope (body), Space Grotesk (labels)
 - Plain JS (no TypeScript) — keep it that way
 - Svelte 5 runes syntax ($state, $derived, etc.)
+
+## Future / Backlog
+- **Gauge vs Chart toggle**: Add setting to replace shot gauge + timer with the extraction chart on the main dashboard. Chart + notes move to a slide-over drawer (see PR #X).

@@ -11,6 +11,7 @@
   import ExtractionChart from '../lib/components/ExtractionChart.svelte'
   import MachineControl from '../lib/components/MachineControl.svelte'
   import ScaleCard from '../lib/components/ScaleCard.svelte'
+  import SlideOverDrawer from '../lib/components/SlideOverDrawer.svelte'
 
   // --- Local state ---
   let steamEnabled = $state(true)
@@ -26,6 +27,7 @@
   let notesText = $state('')
   let notesRating = $state(0)
   let notesSaved = $state(false)
+  let notesDrawerOpen = $state(false)
 
   // --- Derived values ---
   let ms = $derived($machineState)
@@ -251,7 +253,19 @@
       <span class="font-body text-sm text-on-surface-variant">{coffeeName}</span>
     {/if}
   </div>
-  <span class="font-label text-sm text-on-surface-variant truncate max-w-48">{profileTitle}</span>
+  <div class="flex items-center gap-4">
+    <span class="font-label text-sm text-on-surface-variant truncate max-w-48">{profileTitle}</span>
+    <button
+      class="px-3 py-1.5 rounded-md bg-surface-container-highest text-on-surface-variant font-label text-xs uppercase tracking-wider tactile-sink flex items-center gap-1.5"
+      onclick={() => notesDrawerOpen = true}
+      aria-label="Open shot details"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      Notes
+    </button>
+  </div>
 </div>
 
 <!-- Main grid -->
@@ -322,14 +336,14 @@
       {#if !hasGHC}
         {#if ms.isBrewing}
           <button
-            class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
+            class="w-full py-2 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity text-xs"
             class:opacity-50={brewLoading}
             disabled={brewLoading}
             onclick={stopEspresso}
           >Stop</button>
         {:else}
           <button
-            class="w-full py-3 gradient-cta text-on-primary-fixed font-label font-bold uppercase tracking-widest rounded-sm tactile-sink transition-opacity"
+            class="w-full py-2 gradient-cta text-on-primary-fixed font-label font-bold uppercase tracking-widest rounded-sm tactile-sink transition-opacity text-xs"
             class:opacity-50={brewLoading || !ms.isIdle}
             disabled={brewLoading || !ms.isIdle}
             onclick={startEspresso}
@@ -421,7 +435,7 @@
         {#if ms.isSteaming}
           <div class="flex-1">
             <button
-              class="w-full py-3 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity"
+              class="w-full py-2 rounded-sm bg-error/20 text-error font-label font-bold uppercase tracking-widest tactile-sink transition-opacity text-xs"
               class:opacity-50={steamLoading}
               disabled={steamLoading}
               onclick={stopSteam}
@@ -435,7 +449,7 @@
           {/if}
         {/if}
         <button
-          class="px-4 py-3 rounded-sm bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink transition-opacity text-sm"
+          class="px-3 py-2 rounded-sm bg-surface-container-highest text-on-surface font-label font-bold uppercase tracking-widest tactile-sink transition-opacity text-xs"
           class:opacity-50={rinseLoading}
           disabled={rinseLoading}
           onclick={startRinse}
@@ -444,51 +458,52 @@
     </div>
   </div>
 
-  <!-- Row 4: Chart + Notes (minmax compression) -->
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0">
-    <!-- Extraction Curve -->
-    <ExtractionChart />
+  <!-- Row 4: Chart hidden (see CLAUDE.md for future toggle) -->
+  <!-- TODO: Re-enable chart when gauge/chart toggle setting is added -->
+  <!-- <ExtractionChart /> -->
 
-    <!-- Extraction Notes -->
-    <div class="col-span-12 md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col gap-3 min-h-0">
-      <span class="font-label text-xs tracking-widest uppercase text-on-surface-variant">Extraction Notes</span>
-      {#if shot}
-        <textarea
-          class="flex-1 bg-transparent text-on-surface font-body text-sm leading-relaxed resize-none outline-none placeholder:text-on-surface-variant/50"
-          placeholder="Tasting notes, observations, adjustments for next time..."
-          aria-label="Extraction notes"
-          bind:value={notesText}
-          onfocusout={saveNotes}
-        ></textarea>
-        <!-- Rating -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-1" role="radiogroup" aria-label="Shot rating">
-            <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant mr-2">Rating</span>
-            {#each [1, 2, 3, 4, 5] as n}
-              <button
-                class="w-7 h-7 rounded-md font-label text-xs font-bold transition-colors tactile-sink"
-                class:bg-primary={notesRating >= n}
-                class:text-on-primary={notesRating >= n}
-                class:bg-surface-container-highest={notesRating < n}
-                class:text-on-surface-variant={notesRating < n}
-                onclick={() => setRating(n)}
-                aria-label="Rate {n} out of 5"
-                aria-pressed={notesRating >= n}
-              >{n}</button>
-            {/each}
-          </div>
-          {#if notesSaved}
-            <span class="font-label text-xs text-primary">Saved</span>
-          {/if}
-        </div>
-      {:else}
-        <div class="flex-1 flex items-center justify-center">
-          <span class="font-body text-sm text-outline">Pull a shot to add notes</span>
-        </div>
-      {/if}
-    </div>
-  </div>
+  <!-- Notes moved to slide-over drawer (see below) -->
 </div>
+
+<!-- Notes Drawer -->
+<SlideOverDrawer bind:open={notesDrawerOpen} title="Shot Notes">
+  {#if shot}
+    <div class="flex flex-col gap-4 h-full">
+      <textarea
+        class="flex-1 bg-surface-container-low rounded-xl p-4 text-on-surface font-body text-sm leading-relaxed resize-none outline-none placeholder:text-on-surface-variant/50 border border-white/5"
+        placeholder="Tasting notes, observations, adjustments for next time..."
+        aria-label="Extraction notes"
+        bind:value={notesText}
+        onfocusout={saveNotes}
+      ></textarea>
+      <!-- Rating -->
+      <div class="flex items-center justify-between p-2">
+        <div class="flex items-center gap-1" role="radiogroup" aria-label="Shot rating">
+          <span class="font-label text-[10px] tracking-wider uppercase text-on-surface-variant mr-2">Rating</span>
+          {#each [1, 2, 3, 4, 5] as n}
+            <button
+              class="w-8 h-8 rounded-md font-label text-sm font-bold transition-colors tactile-sink"
+              class:bg-primary={notesRating >= n}
+              class:text-on-primary={notesRating >= n}
+              class:bg-surface-container-highest={notesRating < n}
+              class:text-on-surface-variant={notesRating < n}
+              onclick={() => setRating(n)}
+              aria-label="Rate {n} out of 5"
+              aria-pressed={notesRating >= n}
+            >{n}</button>
+          {/each}
+        </div>
+        {#if notesSaved}
+          <span class="font-label text-xs text-primary">Saved</span>
+        {/if}
+      </div>
+    </div>
+  {:else}
+    <div class="flex items-center justify-center h-32">
+      <span class="font-body text-sm text-outline">Pull a shot to add notes</span>
+    </div>
+  {/if}
+</SlideOverDrawer>
 
 <style>
   .dashboard-grid {
@@ -497,8 +512,7 @@
     grid-template-rows:
       auto                   /* metrics */
       auto                   /* controls */
-      minmax(14rem, 1fr)     /* gauges + timer + steam */
-      minmax(10rem, 1fr);    /* chart + notes */
+      minmax(12rem, 1fr);    /* gauges + timer + steam */
   }
 
   @keyframes pulse-bar {
